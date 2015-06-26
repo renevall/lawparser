@@ -62,32 +62,50 @@ func FindTags(data []string) (map[int]string, []int) {
 }
 
 func MakeLaw(data []string, index []int, ref map[int]string) {
-	var title_index, chapter_index int
-	title_index, chapter_index = -1, -1
-	// fmt.Println("title_index at first", title_index)
-	// fmt.Println("chapter_index at first", chapter_index)
+	var title_index, chapter_index, article_index int
+	var is_article bool = false
+	article_txt := []string{}
+
+	title_index, chapter_index, article_index = -1, -1, -1
+
 	for _, k := range index {
 		if ref[k] == "Titulo" {
 			title_index = title_index + 1
 			chapter_index = -1
+			article_index = -1
 			titles = append(titles, Title{name: data[k]})
 		}
 
 		if ref[k] == "Capitulo" {
 			chapter_index = chapter_index + 1
+			article_index = -1
 
 			titles[title_index].chapters =
 				append(titles[title_index].chapters, Chapter{name: data[k]})
-
 		}
 
 		if ref[k] == "Arto" {
-			// fmt.Println("title_index =", title_index)
-			// fmt.Println("chapter_index =", chapter_index, " ", data[k-1])
-			fmt.Println("procesando linea: ", k)
-			titles[title_index].chapters[chapter_index].articles =
-				append(titles[title_index].chapters[chapter_index].articles, Article{name: data[k-1]})
 
+			if !is_article {
+				article_index = article_index + 1
+
+				is_article = true
+				fmt.Println("procesando linea: ", k)
+				titles[title_index].chapters[chapter_index].articles =
+					append(titles[title_index].chapters[chapter_index].articles, Article{name: data[k-1]})
+			} else {
+				is_article = false
+				fmt.Println(article_index)
+				titles[title_index].chapters[chapter_index].articles[article_index].text =
+					strings.Join(article_txt, " ")
+				article_txt = nil
+				is_article = false
+			}
+
+		}
+
+		if is_article == true {
+			article_txt = append(article_txt, data[k])
 		}
 
 	}
