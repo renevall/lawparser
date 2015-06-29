@@ -73,15 +73,18 @@ func MakeLaw(data []string, index []int, ref map[int]string) {
 			title_index = title_index + 1
 			chapter_index = -1
 			article_index = -1
+			is_article = false
 			titles = append(titles, Title{name: data[k]})
 		}
 
 		if ref[k] == "Capitulo" {
 			chapter_index = chapter_index + 1
 			article_index = -1
+			is_article = false
 
 			titles[title_index].chapters =
 				append(titles[title_index].chapters, Chapter{name: data[k]})
+			fmt.Println("Chapter index: ", chapter_index)
 		}
 
 		if ref[k] == "Arto" {
@@ -95,7 +98,7 @@ func MakeLaw(data []string, index []int, ref map[int]string) {
 					append(titles[title_index].chapters[chapter_index].articles, Article{name: data[k-1]})
 			} else {
 				is_article = false
-				fmt.Println(article_index)
+				fmt.Println("Article Index: ", article_index)
 				titles[title_index].chapters[chapter_index].articles[article_index].text =
 					strings.Join(article_txt, " ")
 				article_txt = nil
