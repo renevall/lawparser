@@ -68,7 +68,7 @@ func MakeLaw(data []string, index []int, ref map[int]string) {
 
 	title_index, chapter_index, article_index = -1, -1, -1
 
-	for _, k := range index {
+	for r, k := range index {
 		if ref[k] == "Titulo" {
 			title_index = title_index + 1
 			chapter_index = -1
@@ -96,6 +96,11 @@ func MakeLaw(data []string, index []int, ref map[int]string) {
 				fmt.Println("procesando linea: ", k)
 				titles[title_index].chapters[chapter_index].articles =
 					append(titles[title_index].chapters[chapter_index].articles, Article{name: data[k-1]})
+				for x := k; x < index[r+1]-1; x += 1 {
+					if is_article == true {
+						article_txt = append(article_txt, data[x])
+					}
+				}
 			} else {
 				is_article = false
 				fmt.Println("Article Index: ", article_index)
@@ -107,13 +112,14 @@ func MakeLaw(data []string, index []int, ref map[int]string) {
 
 		}
 
-		if is_article == true {
-			article_txt = append(article_txt, data[k])
-		}
+		// if is_article == true {
+		// 	article_txt = append(article_txt, data[k])
+		// }
 
 	}
 
 	fmt.Printf("%+v", titles)
+	// fmt.Println(index)
 }
 
 var tags = Tags{
