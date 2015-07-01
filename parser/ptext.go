@@ -18,8 +18,6 @@ type Tags []Tag
 
 var title int = 0
 
-var titles Titles
-
 func OpenTextFile(uri string) []string {
 	file, err := ioutil.ReadFile(uri)
 	if err != nil {
@@ -29,10 +27,11 @@ func OpenTextFile(uri string) []string {
 	return lines
 }
 
-func ParseText(uri string) {
+func ParseText(uri string) Titles {
 	data := OpenTextFile(uri)
 	ref, order := FindTags(data)
-	MakeLaw(data, order, ref)
+	parsed_law := MakeLaw(data, order, ref)
+	return parsed_law
 }
 
 func FindTags(data []string) (map[int]string, []int) {
@@ -56,15 +55,16 @@ func FindTags(data []string) (map[int]string, []int) {
 	}
 
 	sort.Ints(keys)
-
+	fmt.Println(keys)
 	return m, keys
 
 }
 
-func MakeLaw(data []string, index []int, ref map[int]string) {
+func MakeLaw(data []string, index []int, ref map[int]string) Titles {
 	var title_index, chapter_index, article_index int
 	var is_article bool = false
 	article_txt := []string{}
+	var titles = Titles{}
 
 	title_index, chapter_index, article_index = -1, -1, -1
 
@@ -74,7 +74,7 @@ func MakeLaw(data []string, index []int, ref map[int]string) {
 			chapter_index = -1
 			article_index = -1
 			is_article = false
-			titles = append(titles, Title{name: data[k]})
+			titles = append(titles, Title{Name: data[k]})
 		}
 
 		if ref[k] == "Capitulo" {
@@ -82,9 +82,9 @@ func MakeLaw(data []string, index []int, ref map[int]string) {
 			article_index = -1
 			is_article = false
 
-			titles[title_index].chapters =
-				append(titles[title_index].chapters, Chapter{name: data[k]})
-			fmt.Println("Chapter index: ", chapter_index)
+			titles[title_index].Chapters =
+				append(titles[title_index].Chapters, Chapter{Name: data[k]})
+			//fmt.Println("Chapter index: ", chapter_index)
 		}
 
 		if ref[k] == "Arto" {
@@ -93,9 +93,9 @@ func MakeLaw(data []string, index []int, ref map[int]string) {
 				article_index = article_index + 1
 
 				is_article = true
-				fmt.Println("procesando linea: ", k)
-				titles[title_index].chapters[chapter_index].articles =
-					append(titles[title_index].chapters[chapter_index].articles, Article{name: data[k-1]})
+				//fmt.Println("procesando linea: ", k)
+				titles[title_index].Chapters[chapter_index].Articles =
+					append(titles[title_index].Chapters[chapter_index].Articles, Article{Name: data[k-1]})
 				for x := k; x < index[r+1]-1; x += 1 {
 					if is_article == true {
 						article_txt = append(article_txt, data[x])
@@ -103,8 +103,8 @@ func MakeLaw(data []string, index []int, ref map[int]string) {
 				}
 			} else {
 				is_article = false
-				fmt.Println("Article Index: ", article_index)
-				titles[title_index].chapters[chapter_index].articles[article_index].text =
+				//fmt.Println("Article Index: ", article_index)
+				titles[title_index].Chapters[chapter_index].Articles[article_index].Text =
 					strings.Join(article_txt, " ")
 				article_txt = nil
 				is_article = false
@@ -112,14 +112,12 @@ func MakeLaw(data []string, index []int, ref map[int]string) {
 
 		}
 
-		// if is_article == true {
-		// 	article_txt = append(article_txt, data[k])
-		// }
-
 	}
 
-	fmt.Printf("%+v", titles)
+	//fmt.Printf("%+v", titles)
+
 	// fmt.Println(index)
+	return titles
 }
 
 var tags = Tags{
