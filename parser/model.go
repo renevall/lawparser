@@ -1,18 +1,18 @@
 package parser
 
 type Title struct {
-	name     string
-	chapters []Chapter
+	Name     string    `json:"name"`
+	Chapters []Chapter `json: "chapters"`
 }
 
 type Chapter struct {
-	name     string
-	articles []Article
+	Name     string    `json:"name"`
+	Articles []Article `json:"articles"`
 }
 
 type Article struct {
-	name string
-	text string
+	Name string `json:"name"`
+	Text string `json:"text"`
 }
 
 type Titles []Title
