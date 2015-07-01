@@ -1,4 +1,4 @@
-package main
+package parser
 
 type Title struct {
 	name     string

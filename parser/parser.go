@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"fmt"
@@ -17,16 +17,16 @@ import (
 
 // type Articles []Article
 
-func main() {
-	// data, err := openPDF("test.html")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+// func main() {
+// 	// data, err := openPDF("test.html")
+// 	// if err != nil {
+// 	// 	log.Fatal(err)
+// 	// }
 
-	// parseLaw(data)
+// 	// parseLaw(data)
 
-	ParseText("test3.txt")
-}
+// 	ParseText("test3.txt")
+// }
 
 func openPDF(uri string) (string, error) {
 	file, err := ioutil.ReadFile(uri)
