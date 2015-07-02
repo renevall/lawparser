@@ -1,6 +1,7 @@
 package api
 
 import (
+	"flag"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -20,5 +21,15 @@ func NewRouter() *mux.Router {
 			Handler(handler)
 
 	}
+
+	dir := flag.String("directory", "app/", "directory of web files")
+	flag.Parse()
+
+	// handle all requests by serving a file of the same name
+	fs := http.Dir(*dir)
+	fileHandler := http.FileServer(fs)
+
+	router.Handle("/", http.RedirectHandler("/app/", 302))
+	router.PathPrefix("/app/").Handler(http.StripPrefix("/app", fileHandler))
 	return router
 }
