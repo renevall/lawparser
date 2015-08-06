@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" ng-app="myapp">
+<html lang="en" ng-app="app">
 <head>
 	<meta charset="UTF-8">
 	<title>Penshiru - Making Laws easier to Process</title>
@@ -50,17 +50,24 @@
 			</div>
 		</div>
 	</div>
-<script src="bower_components/angular/angular.min.js"></script>
-<script src="bower_components/angular-resource/angular-resource.min.js"></script>
-<script src="app.js"></script>
-<!-- <script src="http://code.angularjs.org/1.2.10/angular-resource.min.js"></script> -->
-<script>
-// 	// new dependency: ngResource is included just above
-// 	var myapp = new angular.module("myapp", ["ngResource"]);
-// 	// inject the $resource dependency here
-// 	myapp.controller("MainCtl", ["$scope", "$resource", function($scope, $resource){
-		
-// 	}]);
-</script>
+
+	<!--inject-vendor-->
+	<script src="bower_components/angular/angular.min.js"></script>
+	<script src="bower_components/angular-resource/angular-resource.min.js"></script>
+	<!--end vendor-->
+
+	<!--bootstraping-->
+	<script src="app.js"></script>
+
+	 <!-- core module -->
+    <script src="/core/core.module.js"></script>
+    <script src="/core/dataservice.js"></script>
+
+    <!-- law module-->
+	<script src="/law/law.module.js"></script>
+	<script src="/law/law.controller.js"></script>
+	<script src="/law/config.route.js"></script>
+
+
 </body>
 </html>
