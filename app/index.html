@@ -4,56 +4,91 @@
 	<meta charset="UTF-8">
 	<title>Penshiru - Making Laws easier to Process</title>
 	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.1.0/cyborg/bootstrap.min.css">
+	
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<link rel="stylesheet" href="bower_components/toastr/toastr.css" />
+	<link rel="stylesheet" href="styles/style.css" />
+	<base href="/app/">
 </head>
 <!-- putting this at the top to remove the jarring load -->
 
-<body ng-controller="MainCtl">
-	<div class="jumbotron">
-		<button class="btn btn-primary pull-right">
-			<i class="fa fa-plus"></i> Add book
-		</button>
-		<h1>Law Parser</h1>
-	</div>
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-sm-3 well">
-				<h3>Titles</h3>
-				<ul class="nav nav-pills nav-stacked">
-					<li ng-repead="title in titles"><a href="#">{{ b.name }}</a></li>
-				</ul>
-				<ul class="nav nav-pills nav-stacked">
-					<li ng-repead="title in titles"><a href="#">Capitulo #</a></li>
-				</ul>
-				<ul class="nav nav-pills nav-stacked">
-					<li ng-repead="title in titles"><a href="#">Capitulo #</a></li>
-				</ul>
-				<ul class="nav nav-pills nav-stacked">
-					<li ng-repead="title in titles"><a href="#">Capitulo #</a></li>
-				</ul>
-			</div>
-			<div class="col-sm-6">
-				<h2>Title</h2>
-				<dl class="dl-horizontal">
-					<dt>Author:</dt>
-					<dd>Me, perhaps</dd>
-				</dl>
-			</div>
-			<div class="col-sm-3">
-				<button class="btn btn-primary form-control">
-					<i class="fa fa-pencil"></i> Update this book
-				</button>
-				<button class="btn btn-danger form-control">
-					<i class="fa fa-trash-o"></i> Remove this book
-				</button>
-			</div>
-		</div>
+<body>
+
+	<!-- <div>
+        <div ng-include="'js/layout/shell.html'"></div>
+        <div id="splash-page" ng-show="false">
+            <div class="page-splash">
+                <div class="page-splash-message">
+                    Gulp Patterns Demo
+                </div>
+                <div class="progress progress-striped active page-progress-bar">
+                    <div class="bar"></div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+	
+<div class="navbar-wrapper">
+      <div class="container">
+
+        <nav class="navbar navbar-inverse navbar-static-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">Project name</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li class="dropdown-header">Nav header</li>
+                    <li><a href="#">Separated link</a></li>
+                    <li><a href="#">One more separated link</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+	<div class="container">
+
+    <!-- THIS IS WHERE WE WILL INJECT OUR CONTENT ============================== -->
+    	<div ui-view></div>
+
 	</div>
 
+
+    
+	
+
+
+
+
 	<!--inject-vendor-->
-	<script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+	<script src="bower_components/angular/angular.js"></script>
 	<script src="bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+	<script src="bower_components/toastr/toastr.js"></script>
+	<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
 	<!--end vendor-->
 
 	<!--bootstraping-->
@@ -66,17 +101,31 @@
     <script src="js/blocks/logger/logger.module.js"></script>
     <script src="js/blocks/logger/logger.js"></script>
     <script src="js/blocks/router/router.module.js"></script>
-    <script src="js/blocks/router/routehelper.js"></script>
+    <script src="js/blocks/router/router-helper.provider.js"></script>
 
 
 	 <!-- core module -->
     <script src="js/core/core.module.js"></script>
+    <script src="js/core/core.route.js"></script>
     <script src="js/core/dataservice.js"></script>
+    <script src="js/core/config.js"></script>
+    <script src="js/core/constants.js"></script>
 
     <!-- law module-->
 	<script src="js/law/law.module.js"></script>
 	<script src="js/law/law.controller.js"></script>
-	<script src="js/law/config.route.js"></script>
+	<script src="js/law/law.route.js"></script>
+	<!-- home module -->
+	<script src="js/home/home.module.js"></script>
+	<script src="js/home/home.controller.js"></script>
+	<script src="js/home/home.route.js"></script>
+
+	<!-- layout module -->
+	<script src="js/layout/layout.module.js"></script>
+	<script src="js/layout/ht-sidebar.directive.js"></script>
+    <script src="js/layout/ht-top-nav.directive.js"></script>
+    <script src="js/layout/shell.controller.js"></script>
+    <script src="js/layout/sidebar.controller.js"></script>
 
 
 </body>

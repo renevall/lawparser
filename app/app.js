@@ -2,9 +2,11 @@
 	'use strict';
 	
 	angular.module('app',[
-		'ngResource',
 		'app.law',
-		'app.core'
+		'app.law',
+		
+		'app.core',
+		'app.layout'
 		]);
 
 })();

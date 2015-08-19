@@ -1,0 +1,40 @@
+<div class="jumbotron">
+		<button class="btn btn-primary pull-right">
+			<i class="fa fa-plus"></i> Add book
+		</button>
+		<h1>Law Parser</h1>
+	</div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-3 well">
+				<h3>Titles</h3>
+				<ul class="nav nav-pills nav-stacked">
+					<li ng-repead="title in titles"><a href="#">{{ b.name }}</a></li>
+				</ul>
+				<ul class="nav nav-pills nav-stacked">
+					<li ng-repead="title in titles"><a href="#">Capitulo #</a></li>
+				</ul>
+				<ul class="nav nav-pills nav-stacked">
+					<li ng-repead="title in titles"><a href="#">Capitulo #</a></li>
+				</ul>
+				<ul class="nav nav-pills nav-stacked">
+					<li ng-repead="title in titles"><a href="#">Capitulo #</a></li>
+				</ul>
+			</div>
+			<div class="col-sm-6">
+				<h2>Title</h2>
+				<dl class="dl-horizontal">
+					<dt>Author:</dt>
+					<dd>Me, perhaps</dd>
+				</dl>
+			</div>
+			<div class="col-sm-3">
+				<button class="btn btn-primary form-control">
+					<i class="fa fa-pencil"></i> Update this book
+				</button>
+				<button class="btn btn-danger form-control">
+					<i class="fa fa-trash-o"></i> Remove this book
+				</button>
+			</div>
+		</div>
+	</div>

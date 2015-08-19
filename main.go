@@ -18,5 +18,7 @@ func main() {
 
 	router := api.NewRouter()
 
+	http.Handle("/", router)
 	log.Fatal(http.ListenAndServe(":8080", router))
+
 }
