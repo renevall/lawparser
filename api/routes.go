@@ -1,12 +1,12 @@
 package api
 
-import "net/http"
+// import "net/http"
 
 type Route struct {
 	Name        string
 	Method      string
 	Pattern     string
-	HandlerFunc http.HandlerFunc
+	HandlerFunc appHandler
 }
 
 type Routes []Route
@@ -16,7 +16,7 @@ var routes = Routes{
 		"Index",
 		"GET",
 		"/data",
-		Index,
+		appHandler(Index),
 	},
 	// Route{
 	// 	"TodoIndex",
@@ -28,6 +28,12 @@ var routes = Routes{
 		"ParseShow",
 		"GET",
 		"/parse",
-		ParseShow,
+		appHandler(ParseShow),
+	},
+	Route{
+		"FileUpload",
+		"POST",
+		"/api/law/uploadfile",
+		appHandler(FileUpload),
 	},
 }
