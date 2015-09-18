@@ -6,7 +6,7 @@
 		.controller('ReviewLaw', ReviewLaw);
 
 
-	function ReviewLaw($state){ //pass dependencies as parameters
+	function ReviewLaw(){ //pass dependencies as parameters
 		/* init variables*/
 
 	

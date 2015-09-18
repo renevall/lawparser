@@ -17,7 +17,6 @@ func main() {
 	defer db.Close(ctx) // closes all DB connections
 
 	router := api.NewRouter()
-
 	http.Handle("/", router)
 	log.Fatal(http.ListenAndServe(":8080", router))
 

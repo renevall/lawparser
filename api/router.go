@@ -28,8 +28,14 @@ func NewRouter() *mux.Router {
 	// handle all requests by serving a file of the same name
 	fs := http.Dir(*dir)
 	fileHandler := http.FileServer(fs)
+	
+	//handle custom 404
+	
+	router.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
 
 	router.Handle("/", http.RedirectHandler("/app/", 302))
-	router.PathPrefix("/app/").Handler(http.StripPrefix("/app", fileHandler))
+	router.PathPrefix("/app/").Handler(
+		NotFoundHook{http.StripPrefix("/app/",fileHandler)})
+	// router.PathPrefix("/app").Handler(http.StripPrefix("/app/",fileHandler))
 	return router
 }

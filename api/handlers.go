@@ -23,3 +23,8 @@ func ParseShow(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 }
+
+func NotFoundHandler(w http.ResponseWriter, r *http.Request){
+	fmt.Println("Not Found Handler" ,r.URL )
+	
+}

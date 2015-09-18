@@ -17,14 +17,10 @@
                 state: 'review',
                 config: {
                     url: '/review',
-                    templateUrl: 'review.html',
+                    templateUrl: 'js/law/review.html',
                     controller: 'ReviewLaw',
                     controllerAs: 'vm',
                     title: 'review law',
-                    settings: {
-                        nav: 1,
-                        content: '<i class="fa fa-dashboard"></i> Review Law'
-                    }
                 }
             }
         ];

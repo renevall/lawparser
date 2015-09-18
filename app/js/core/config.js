@@ -40,7 +40,7 @@
             var resolveAlways = { /* @ngInject */
                 ready: ['dataservice',function(dataservice) {
                     //return dataservice.ready();
-                    console.log(dataservice);
+
                     return dataservice.ready();
                 }]
             };
