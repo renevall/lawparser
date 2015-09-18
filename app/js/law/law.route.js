@@ -17,7 +17,7 @@
                 state: 'review',
                 config: {
                     url: '/review',
-                    templateUrl: 'review.html',
+                    templateUrl: 'js/law/review.html',
                     controller: 'ReviewLaw',
                     controllerAs: 'vm',
                     title: 'review law',
@@ -25,6 +25,16 @@
                         nav: 1,
                         content: '<i class="fa fa-dashboard"></i> Review Law'
                     }
+                }
+            },
+            {
+                state: 'upload',
+                config:{
+                    url: '/upload',
+                    templateUrl: 'js/law/upload.html',
+                    controller: 'UploadController',
+                    controllerAs: 'vm',
+                    title: 'Upload Law'
                 }
             }
         ];

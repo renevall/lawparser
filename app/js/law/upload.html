@@ -1,0 +1,39 @@
+<form ng-controller="UploadController as upload" name="myForm">
+  <div class="form-group">
+    <label for="lawName">Law Name:</label>
+    <input type="text" class="form-control" id="lawName" placeholder="Law Name" 
+    ng-model="upload.filename" name="lawName">
+    <i ng-show="myForm.userName.$error.required">*required</i>
+  </div>
+  <div class="form-group">
+    <label for="file">File(PDF)</label>
+    <input type="file" name="file" class="form-control" id="file" ngf-select ng-model="lawFile" accept="image/*" ngf-max-size="2MB" required>
+      <!-- <i ng-show="myForm.file.$error.required">*required</i><br>
+      <i ng-show="myForm.file.$error.maxSize">File too large 
+          {{upload.file.size / 1000000|number:1}}MB: max {{upload.file.$errorParam}}</i> -->
+      <!-- <img ng-show="myForm.file.$valid" ngf-src="!upload.file.$error && upload.file"> -->
+  </div>
+  <button ng-disabled="!myForm.$valid" 
+              ng-click="upload.uploadFile(lawFile)" class="btn btn-default">Submit</button>
+ <!--      <span class="progress" ng-show="file.progress >= 0">
+        <div style="width:{{file.progress}}%" 
+            ng-bind="file.progress + '%'"></div>
+      </span>
+      <span ng-show="file.result">Upload Successful</span>
+      <span class="err" ng-show="errorMsg">{{errorMsg}}</span> -->
+  <!-- <div class="form-group">
+    <label for="exampleInputPassword1">Password</label>
+    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+  </div>
+  <div class="form-group">
+    <label for="exampleInputFile">File input</label>
+    <input type="file" id="exampleInputFile">
+    <p class="help-block">Example block-level help text here.</p>
+  </div>
+  <div class="checkbox">
+    <label>
+      <input type="checkbox"> Check me out
+    </label>
+  </div> -->
+  <!-- <button type="submit" class="btn btn-default">Submit</button> -->
+</form>

@@ -24,6 +24,8 @@
   "dependencies": {
     "angular": "1.4.1",
     "bootstrap": "~3.3.5",
-    "jquery": "~2.1.4"
+    "jquery": "~2.1.4",
+    "ng-file-upload-shim": "~7.0.5",
+    "ng-file-upload": "~7.0.5"
   }
 }

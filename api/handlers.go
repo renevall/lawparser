@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	// "io"
 	// "os"
 	// "github.com/gorilla/mux"
@@ -70,7 +71,8 @@ func FileUpload(w http.ResponseWriter, r *http.Request) (int, error) {
 }
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "app/js/core/404.html")
+	w.Header().Set("Content-type", "text/html")
+	http.ServeFile(w, r, "app/index.html")
 	// fmt.Println("What?")
 }
 
@@ -82,10 +84,12 @@ type myFileHandler struct {
 }
 
 func (mfh *myFileHandler) WriteHeader(status int) {
-	mfh.ResponseWriter.WriteHeader(status)
+	//mfh.ResponseWriter.WriteHeader(200)
 	if status == 404 {
 		mfh.ignore = true
-		fmt.Fprintln(mfh.ResponseWriter, "Custom File Server error")
+		t, _ := template.ParseFiles("app/index.html")
+		t.Execute(mfh.ResponseWriter, nil)
+
 	}
 
 }
@@ -104,3 +108,5 @@ type NotFoundHook struct {
 func (nfh NotFoundHook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	nfh.h.ServeHTTP(&myFileHandler{ResponseWriter: w}, r)
 }
+
+// END CUSTOM HANDLER //

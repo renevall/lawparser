@@ -2,5 +2,6 @@
 	'use strict';
 	
 	angular.module('app.law', [
-		'ui.router']);
+		'ui.router',
+		'ngFileUpload']);
 })();
