@@ -1,5 +1,5 @@
-// Package db provides a simple way to store and retrieve database connections using x/net/context.
-package db
+// Package core provides a simple way to store and retrieve database connections using x/net/context.
+package core
 
 import (
 	"database/sql"

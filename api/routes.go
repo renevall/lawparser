@@ -1,12 +1,15 @@
 package api
 
-import "net/http"
+import (
+	"bitbucket.com/reneval/lawparser/core"
+	"net/http"
+)
 
 type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc http.HandlerFunc
+	Name    string
+	Method  string
+	Pattern string
+	Func    func(e *core.Env, w http.ResponseWriter, r *http.Request) error
 }
 
 type Routes []Route
@@ -29,5 +32,11 @@ var routes = Routes{
 		"GET",
 		"/parse",
 		ParseShow,
+	},
+	Route{
+		"TestDB",
+		"GET",
+		"/testdb",
+		TestDBHandler,
 	},
 }
