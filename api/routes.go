@@ -18,16 +18,16 @@ var routes = Routes{
 		"/data",
 		Index,
 	},
-	// Route{
-	// 	"TodoIndex",
-	// 	"GET",
-	// 	"/todos",
-	// 	TodoIndex,
-	// },
 	Route{
 		"ParseShow",
 		"GET",
 		"/parse",
 		ParseShow,
+	},
+	Route{
+		"FileUpload",
+		"POST",
+		"/upload",
+		FileUpload,
 	},
 }

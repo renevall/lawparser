@@ -16,11 +16,11 @@ class App {
   }
 
   upload(){
-    this.makeFileRequest("http://localhost:3000/upload",[],
+    this.makeFileRequest("http://localhost:8080/upload",[],
     this.filesToUpload).then((result) => {
       console.log(result);
     }, (error) => {
-      console.error(error);
+      console.log(error);
     });
   }
 
@@ -29,12 +29,15 @@ class App {
   }
 
   makeFileRequest(url: string, params: Array<string>, files: Array<File>){
+    console.log("making request");
+    console.log(files);
     return new Promise((resolve, reject) => {
       var formData: any = new FormData();
       var xhr = new XMLHttpRequest();
       for(var i = 0; i < files.length; i++){
         formData.append("uploads[]", files[i], files[i].name);
       }
+      console.log(formData);
       xhr.onreadystatechange = function(){
         if(xhr.readyState == 4){
           if(xhr.readyState == 200){
@@ -44,6 +47,8 @@ class App {
           }
         }
       }
+      xhr.open("POST", url, true);
+      xhr.send(formData);
     });
   }
 
