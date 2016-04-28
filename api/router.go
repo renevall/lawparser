@@ -1,35 +1,35 @@
 package api
 
-import (
-	"flag"
-	"net/http"
+// import (
+// 	"flag"
+// 	"net/http"
 
-	"github.com/gorilla/mux"
-)
+// 	"github.com/gorilla/mux"
+// )
 
-func NewRouter() *mux.Router {
-	router := mux.NewRouter().StrictSlash(true)
-	for _, route := range routes {
-		var handler http.Handler
-		handler = route.HandlerFunc
-		handler = Logger(handler, route.Name)
+// func NewRouter() *mux.Router {
+// 	router := mux.NewRouter().StrictSlash(true)
+// 	for _, route := range routes {
+// 		var handler http.Handler
+// 		handler = route.HandlerFunc
+// 		handler = Logger(handler, route.Name)
 
-		router.
-			Methods(route.Method).
-			Path(route.Pattern).
-			Name(route.Name).
-			Handler(handler)
+// 		router.
+// 			Methods(route.Method).
+// 			Path(route.Pattern).
+// 			Name(route.Name).
+// 			Handler(handler)
 
-	}
+// 	}
 
-	dir := flag.String("directory", "app/", "directory of web files")
-	flag.Parse()
+// 	dir := flag.String("directory", "app/", "directory of web files")
+// 	flag.Parse()
 
-	// handle all requests by serving a file of the same name
-	fs := http.Dir(*dir)
-	fileHandler := http.FileServer(fs)
+// 	// handle all requests by serving a file of the same name
+// 	fs := http.Dir(*dir)
+// 	fileHandler := http.FileServer(fs)
 
-	router.Handle("/", http.RedirectHandler("/app/", 302))
-	router.PathPrefix("/app/").Handler(http.StripPrefix("/app", fileHandler))
-	return router
-}
+// 	router.Handle("/", http.RedirectHandler("/app/", 302))
+// 	router.PathPrefix("/app/").Handler(http.StripPrefix("/app", fileHandler))
+// 	return router
+// }

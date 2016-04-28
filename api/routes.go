@@ -11,23 +11,23 @@ type Route struct {
 
 type Routes []Route
 
-var routes = Routes{
-	Route{
-		"Index",
-		"GET",
-		"/data",
-		Index,
-	},
-	Route{
-		"ParseShow",
-		"GET",
-		"/parse",
-		ParseShow,
-	},
-	Route{
-		"FileUpload",
-		"POST",
-		"/upload",
-		FileUpload,
-	},
-}
+// var routes = Routes{
+// 	Route{
+// 		"Index",
+// 		"GET",
+// 		"/data",
+// 		Index,
+// 	},
+// 	Route{
+// 		"ParseShow",
+// 		"GET",
+// 		"/parse",
+// 		ParseShow,
+// 	},
+// 	Route{
+// 		"FileUpload",
+// 		"POST",
+// 		"/upload",
+// 		FileUpload,
+// 	},
+// }
