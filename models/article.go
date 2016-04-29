@@ -2,6 +2,8 @@ package models
 
 //Article Holds the article model and his methods
 type Article struct {
-	Name string `json:"name"`
-	Text string `json:"text"`
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Text      string `json:"text"`
+	ArticleID int    `json:"articleID"`
 }
