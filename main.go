@@ -1,22 +1,30 @@
 package main
 
 import (
-	"bitbucket.com/reneval/lawparser/api"
-	"bitbucket.com/reneval/lawparser/db"
-	// "bitbucket.com/reneval/lawparser/parser"
-	_ "github.com/mattn/go-sqlite3"
-	"golang.org/x/net/context"
+	// "bitbucket.com/reneval/lawparser/api"
+	"bitbucket.org/reneval/lawparser/db"
+	"bitbucket.org/reneval/lawparser/handlers"
+	// "bitbucket.org/reneval/lawparser/parser"
 	"log"
-	"net/http"
+
+	"github.com/codegangsta/negroni"
+	"github.com/julienschmidt/httprouter"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
 
-	ctx := context.Background()
-	ctx = db.OpenSQL(ctx, "main", "sqlite3", "root:hunter2@unix(/tmp/mysql.sock)/myCoolDB")
-	defer db.Close(ctx) // closes all DB connections
+	db, err := db.NewDB()
+	if err != nil {
+		log.Fatalln("Could not connect to database")
+	}
 
-	router := api.NewRouter()
+	// router := api.NewRouter()
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	r := httprouter.New()
+	r.GET("/", handlers.Index)
+	r.POST("/upload", handlers.FileUpload(db))
+	n := negroni.Classic()
+	n.UseHandler(r)
+	n.Run(":8080")
 }

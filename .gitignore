@@ -6,3 +6,7 @@ frontend/jspm_packages
 frontend/bower_components
 tmp
 /testlaws
+
+*.sqlite
+*.db
+lawparser

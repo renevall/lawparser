@@ -27,3 +27,11 @@ This README would normally document whatever steps are necessary to get your app
 
 * Repo owner or admin
 * Other community or team contact
+
+### Testing
+
+*CURl
+
+```
+    curl -i -F uploads[]=@*(PWD)/test3.txt http://localhost:8080/upload
+```
