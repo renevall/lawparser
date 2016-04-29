@@ -3,8 +3,13 @@ package db
 import (
 	"database/sql"
 	"log"
-    "bitbucket.com/reneval/lawparser/config"
+
+	"bitbucket.org/reneval/lawparser/config"
 )
+
+type orm interface {
+	makeInsertSQl() string
+}
 
 //NewDB checks for a db, if not creates a new one.
 func NewDB() (*sql.DB, error) {

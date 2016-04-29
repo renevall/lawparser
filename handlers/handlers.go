@@ -9,9 +9,10 @@ import (
 	// "github.com/gorilla/mux"
 	"net/http"
 
-	"bitbucket.com/reneval/lawparser/parser"
-	"github.com/julienschmidt/httprouter"
 	"database/sql"
+
+	"bitbucket.org/reneval/lawparser/parser"
+	"github.com/julienschmidt/httprouter"
 )
 
 type Response struct {
@@ -29,7 +30,7 @@ func Index(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	fmt.Fprint(w, "Welcome!\n")
 }
 
-func ParseShow(w http.ResponseWriter, r *http.Request,p httprouter.Params) {
+func ParseShow(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	law := parser.ParseText("testlaws/test3.txt")
 
@@ -42,7 +43,7 @@ func ParseShow(w http.ResponseWriter, r *http.Request,p httprouter.Params) {
 }
 
 func FileUpload(db *sql.DB) httprouter.Handle {
-	return func(w http.ResponseWriter,r *http.Request, p httprouter.Params){
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		log.Println("METHOD IS " + r.Method + " AND CONTENT-TYPE IS " + r.Header.Get("Content-Type"))
@@ -77,9 +78,8 @@ func FileUpload(db *sql.DB) httprouter.Handle {
 		}
 		fmt.Println(Response{"File '" + handler.Filename + "' submited successfully", false})
 		// json.NewEncoder(w).Encode(Response2{true, handler.Filename + "Server", handler.Filename})
-		
-		law := parser.ParseText("testlaws/"+handler.Filename)
 
+		law := parser.ParseText("testlaws/" + handler.Filename)
 		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
 		w.WriteHeader(http.StatusOK)
 
