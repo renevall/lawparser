@@ -206,15 +206,22 @@ func InsertLawToDB(db *sql.DB, law *models.Law) error {
 		//TODO second insert
 		for _, chapter := range title.Chapters {
 			//TODO insert of Chapter, get ID
+			tx, err := db.Begin()
+			if err != nil {
+				log.Fatal(err)
+			}
 			for _, article := range chapter.Articles {
+
 				//TODO INSERT ARTICLES, DONT FORGET TO SET FK
 				article.ChapterID = 1
-				err := article.CreateArticle(db)
+				err := article.CreateArticle(db, tx)
 				if err != nil {
 					log.Println(err)
 					return nil
 				}
 			}
+			tx.Commit()
+
 		}
 	}
 	return nil

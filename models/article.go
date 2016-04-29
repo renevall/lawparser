@@ -14,12 +14,19 @@ type Article struct {
 }
 
 //CreateArticle Adds an Article to the DB
-func (a *Article) CreateArticle(db *sql.DB) error {
+func (a *Article) CreateArticle(db *sql.DB, tx *sql.Tx) error {
 	q := "Insert INTO Article(name,text,chapter_id) VALUES($1,$2,$3)"
 
-	if _, err := db.Exec(q, a.Name, a.Text, a.ChapterID); err != nil {
-		log.Println(err)
-		return err
+	if tx != nil {
+		if _, err := tx.Exec(q, a.Name, a.Text, a.ChapterID); err != nil {
+			log.Println(err)
+			return err
+		}
+	} else {
+		if _, err := db.Exec(q, a.Name, a.Text, a.ChapterID); err != nil {
+			log.Println(err)
+			return err
+		}
 	}
 	return nil
 }
