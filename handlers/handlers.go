@@ -80,6 +80,10 @@ func FileUpload(db *sql.DB) httprouter.Handle {
 		// json.NewEncoder(w).Encode(Response2{true, handler.Filename + "Server", handler.Filename})
 
 		law := parser.ParseText("testlaws/" + handler.Filename)
+		inserted := parser.InsertLawToDB(db, law)
+		if inserted != nil {
+			panic(inserted)
+		}
 		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
 		w.WriteHeader(http.StatusOK)
 

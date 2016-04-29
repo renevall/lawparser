@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -196,4 +197,25 @@ var tags = Tags{
 	Tag{"Capitulo", "Capí?tulo\\s|Capitulo\\s"},
 	Tag{"Artículo", "Artículo\\s\\d+"},
 	Tag{"Arto", "Art.\\s\\d+"},
+}
+
+//InsertLawToDB inserts all parsed law to DB
+func InsertLawToDB(db *sql.DB, law *models.Law) error {
+	//TODO first insert, get id of inserted law
+	for _, title := range law.Titles {
+		//TODO second insert
+		for _, chapter := range title.Chapters {
+			//TODO insert of Chapter, get ID
+			for _, article := range chapter.Articles {
+				//TODO INSERT ARTICLES, DONT FORGET TO SET FK
+				article.ChapterID = 1
+				err := article.CreateArticle(db)
+				if err != nil {
+					log.Println(err)
+					return nil
+				}
+			}
+		}
+	}
+	return nil
 }

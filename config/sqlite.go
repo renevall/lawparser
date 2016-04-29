@@ -6,6 +6,7 @@ var InitSqls = []string{
     CREATE TABLE IF NOT EXISTS 'Article' (
 	'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'name'	TEXT NOT NULL,
+	'text'  TEXT NOT NULL,
 	'chapter_id'	INTEGER NOT NULL
 );`,
 	`
@@ -14,13 +15,13 @@ var InitSqls = []string{
 	'name'	INTEGER NOT NULL,
 	'title_id'	INTEGER NOT NULL
 );`,
-    `
+	`
     CREATE TABLE IF NOT EXISTS "Title" (
 	'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'name'	TEXT,
 	'law_id'	INTEGER
 );`,
-    `
+	`
     CREATE TABLE IF NOT EXISTS "Law" (
 	'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'name'	TEXT NOT NULL,
