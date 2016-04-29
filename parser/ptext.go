@@ -226,3 +226,7 @@ func InsertLawToDB(db *sql.DB, law *models.Law) error {
 	}
 	return nil
 }
+
+func ListArticlesInDB(db *sql.DB){
+		
+}

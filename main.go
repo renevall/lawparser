@@ -24,6 +24,7 @@ func main() {
 	r := httprouter.New()
 	r.GET("/", handlers.Index)
 	r.POST("/upload", handlers.FileUpload(db))
+	r.GET("/articles", handlers.GetAllArticles(db))
 	n := negroni.Classic()
 	n.UseHandler(r)
 	n.Run(":8080")

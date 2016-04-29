@@ -33,7 +33,7 @@ func (a *Article) CreateArticle(db *sql.DB, tx *sql.Tx) error {
 
 //GetArticles read all articles from DB
 func (a *Article) GetArticles(db *sql.DB) ([]Article, error) {
-	q := "SELECT ID,name, text, ChapterID FROM Article"
+	q := "SELECT ID,name, text, chapter_id FROM Article"
 	rows, err := db.Query(q)
 	defer rows.Close()
 	if err != nil {
@@ -43,11 +43,11 @@ func (a *Article) GetArticles(db *sql.DB) ([]Article, error) {
 
 	var articles []Article
 	for rows.Next() {
-		var a Article
 		if err := rows.Scan(&a.ID, &a.Name, &a.Text, &a.ChapterID); err != nil {
 			log.Println(err)
 			return nil, err
 		}
+		articles = append(articles, *a)
 	}
 	return articles, nil
 }

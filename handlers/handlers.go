@@ -13,6 +13,7 @@ import (
 
 	"bitbucket.org/reneval/lawparser/parser"
 	"github.com/julienschmidt/httprouter"
+	"bitbucket.org/reneval/lawparser/models"
 )
 
 type Response struct {
@@ -40,6 +41,25 @@ func ParseShow(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	if err := json.NewEncoder(w).Encode(law); err != nil {
 		panic(err)
 	}
+}
+
+func GetAllArticles(db *sql.DB) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		var article models.Article
+		articles,err := article.GetArticles(db)
+		if err != nil{
+			log.Println(err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(articles); err != nil {
+			panic(err)
+		}
+		
+	}
+
 }
 
 func FileUpload(db *sql.DB) httprouter.Handle {
