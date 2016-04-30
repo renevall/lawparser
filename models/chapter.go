@@ -10,7 +10,7 @@ type Chapter struct {
 	ID       int       `json:"id"`
 	Name     string    `json:"name"`
 	Articles []Article `json:"articles"`
-	TitleID  int       `json:"titleID"`
+	TitleID  int64     `json:"titleID"`
 }
 
 //AddArticle adds parsed article data to parsed law object
@@ -20,13 +20,19 @@ func (c *Chapter) AddArticle(article Article) []Article {
 }
 
 //CreateChapter Adds a Chapter to the DB
-func (c *Chapter) CreateChapter(db *sql.DB) error {
+func (c *Chapter) CreateChapter(db *sql.DB) (int64, error) {
 	q := "INSERT INTO Chapter(name,title_id) VALUES($1,$2)"
-		if _, err := db.Exec(q, c.Name,c.TitleID); err != nil {
-			log.Println(err)
-			return err
-		}
-	return nil
+	result, err := db.Exec(q, c.Name, c.TitleID)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+	lastInsertedID, err := result.LastInsertId()
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+	return lastInsertedID, nil
 }
 
 //GetChapters read all Chapters from DB
@@ -45,7 +51,7 @@ func (c *Chapter) GetChapters(db *sql.DB) ([]Chapter, error) {
 			log.Println(err)
 			return nil, err
 		}
-		chapters = append(chapters,*c)
+		chapters = append(chapters, *c)
 	}
 	return chapters, nil
 }

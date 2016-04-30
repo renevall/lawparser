@@ -1,9 +1,9 @@
 package models
 
 import (
-	"time"
-	"log"
 	"database/sql"
+	"log"
+	"time"
 )
 
 //Law struct with most methods.
@@ -24,16 +24,23 @@ func (law *Law) AddTitle(title Title) []Title {
 }
 
 //CreateLaw Adds a Law to the DB
-func (law *Law) CreateLaw(db *sql.DB) error{
-	q:="INSERT INTO LAW(name,approval_date,publish_date,journal,intro) VALUES($1,$2,$3,$4,$5)"
-	
-	if _,err := db.Exec(q,law.Name,law.ApprovalDate,law.PublishDate,law.Journal,law.Intro); err!=nil{
+func (law *Law) CreateLaw(db *sql.DB) (int64, error) {
+	q := "INSERT INTO LAW(name,approval_date,publish_date,journal,intro) VALUES($1,$2,$3,$4,$5)"
+
+	result, err := db.Exec(q, law.Name, law.ApprovalDate, law.PublishDate, law.Journal, law.Intro)
+
+	if err != nil {
 		log.Println(err)
-		return err
+		return 0, err
 	}
-	
-	return nil
-	
+
+	lastInsertedID, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return lastInsertedID, nil
+
 }
 
 //GetLaws read all articles from DB
@@ -48,12 +55,12 @@ func (law *Law) GetLaws(db *sql.DB) ([]Law, error) {
 
 	var laws []Law
 	for rows.Next() {
-		if err := rows.Scan(&law.ID, &law.Name, &law.ApprovalDate, &law.PublishDate,&law.PublishDate,
-		&law.Journal, &law.Intro); err != nil {
+		if err := rows.Scan(&law.ID, &law.Name, &law.ApprovalDate, &law.PublishDate, &law.PublishDate,
+			&law.Journal, &law.Intro); err != nil {
 			log.Println(err)
 			return nil, err
 		}
-		laws = append(laws,*law)
+		laws = append(laws, *law)
 	}
 	return laws, nil
 }

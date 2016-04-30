@@ -27,7 +27,7 @@ var InitSqls = []string{
 	'name'	TEXT NOT NULL,
 	'approval_date'	TEXT NOT NULL,
 	'publish_date'	TEXT NOT NULL,
-	'book_number'	TEXT,
-	'Intro'	Text
+	'journal'	TEXT,
+	'intro'	Text
 );`,
 }

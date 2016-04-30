@@ -10,7 +10,7 @@ type Article struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
 	Text      string `json:"text"`
-	ChapterID int    `json:"chapterID"`
+	ChapterID int64  `json:"chapterID"`
 }
 
 //CreateArticle Adds an Article to the DB

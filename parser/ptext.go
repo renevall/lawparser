@@ -201,19 +201,32 @@ var tags = Tags{
 
 //InsertLawToDB inserts all parsed law to DB
 func InsertLawToDB(db *sql.DB, law *models.Law) error {
-	//TODO first insert, get id of inserted law
+	lawID, err := law.CreateLaw(db)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
 	for _, title := range law.Titles {
-		//TODO second insert
+		title.LawID = lawID
+		titleID, err := title.CreateTitle(db)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
 		for _, chapter := range title.Chapters {
-			//TODO insert of Chapter, get ID
+			chapter.TitleID = titleID
+			chapterID, err := chapter.CreateChapter(db)
+			if err != nil {
+				log.Println(err)
+				return nil
+			}
+
 			tx, err := db.Begin()
 			if err != nil {
 				log.Fatal(err)
 			}
 			for _, article := range chapter.Articles {
-
-				//TODO INSERT ARTICLES, DONT FORGET TO SET FK
-				article.ChapterID = 1
+				article.ChapterID = chapterID
 				err := article.CreateArticle(db, tx)
 				if err != nil {
 					log.Println(err)
@@ -227,6 +240,6 @@ func InsertLawToDB(db *sql.DB, law *models.Law) error {
 	return nil
 }
 
-func ListArticlesInDB(db *sql.DB){
-		
+func ListArticlesInDB(db *sql.DB) {
+
 }

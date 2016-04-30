@@ -10,7 +10,7 @@ type Title struct {
 	ID       int       `json:"id"`
 	Name     string    `json:"name"`
 	Chapters []Chapter `json:"chapters"`
-	LawID    int       `json:"lawID"`
+	LawID    int64     `json:"lawID"`
 }
 
 //AddChapter adds parsed chapter data to parsed law object
@@ -20,13 +20,19 @@ func (t *Title) AddChapter(chapter Chapter) []Chapter {
 }
 
 //CreateTitle Adds a Chapter to the DB
-func (t *Title) CreateTitle(db *sql.DB) error {
+func (t *Title) CreateTitle(db *sql.DB) (int64, error) {
 	q := "INSERT INTO Title(name,law_id) VALUES($1,$2)"
-		if _, err := db.Exec(q, t.Name,t.LawID); err != nil {
-			log.Println(err)
-			return err
-		}
-	return nil
+	result, err := db.Exec(q, t.Name, t.LawID)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+	lastInsertedID, err := result.LastInsertId()
+	if err != nil {
+		log.Println(err)
+		return 0, nil
+	}
+	return lastInsertedID, nil
 }
 
 //GetTitles read all Titles from DB
@@ -45,7 +51,7 @@ func (t *Title) GetTitles(db *sql.DB) ([]Title, error) {
 			log.Println(err)
 			return nil, err
 		}
-		titles = append(titles,*t)
+		titles = append(titles, *t)
 	}
 	return titles, nil
 }
