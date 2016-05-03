@@ -10,3 +10,6 @@ tmp
 *.sqlite
 *.db
 lawparser
+
+#Direct Link to Front End App
+app

@@ -2,6 +2,9 @@ package main
 
 import (
 	// "bitbucket.com/reneval/lawparser/api"
+
+	"net/http"
+
 	"bitbucket.org/reneval/lawparser/db"
 	"bitbucket.org/reneval/lawparser/handlers"
 	// "bitbucket.org/reneval/lawparser/parser"
@@ -19,13 +22,14 @@ func main() {
 		log.Fatalln("Could not connect to database")
 	}
 
-	// router := api.NewRouter()
-
 	r := httprouter.New()
-	r.GET("/", handlers.Index)
-	r.POST("/upload", handlers.FileUpload(db))
-	r.GET("/articles", handlers.GetAllArticles(db))
-	n := negroni.Classic()
+	r.POST("/api/upload", handlers.FileUpload(db))
+	r.GET("/api/articles", handlers.GetAllArticles(db))
+	n := negroni.New(
+		negroni.NewRecovery(),
+		negroni.NewLogger(),
+		negroni.NewStatic(http.Dir("app")),
+	)
 	n.UseHandler(r)
 	n.Run(":8080")
 }
