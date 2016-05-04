@@ -25,6 +25,7 @@ func main() {
 	r := httprouter.New()
 	r.POST("/api/upload", handlers.FileUpload(db))
 	r.GET("/api/articles", handlers.GetAllArticles(db))
+	r.GET("/api/law", handlers.GetFullLawJSON(db))
 	n := negroni.New(
 		negroni.NewRecovery(),
 		negroni.NewLogger(),

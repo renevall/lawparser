@@ -222,7 +222,7 @@ func InsertLawToDB(db *sqlx.DB, law *models.Law) error {
 				return nil
 			}
 
-			tx, err := db.Begin()
+			tx, err := db.Beginx()
 			if err != nil {
 				log.Fatal(err)
 			}

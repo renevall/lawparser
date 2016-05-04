@@ -9,11 +9,10 @@ import (
 	// "github.com/gorilla/mux"
 	"net/http"
 
-	"database/sql"
-
-	"bitbucket.org/reneval/lawparser/parser"
-	"github.com/julienschmidt/httprouter"
 	"bitbucket.org/reneval/lawparser/models"
+	"bitbucket.org/reneval/lawparser/parser"
+	"github.com/jmoiron/sqlx"
+	"github.com/julienschmidt/httprouter"
 )
 
 type Response struct {
@@ -43,11 +42,11 @@ func ParseShow(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 }
 
-func GetAllArticles(db *sql.DB) httprouter.Handle {
+func GetAllArticles(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		var article models.Article
-		articles,err := article.GetArticles(db)
-		if err != nil{
+		articles, err := article.GetArticles(db)
+		if err != nil {
 			log.Println(err)
 			return
 		}
@@ -57,12 +56,29 @@ func GetAllArticles(db *sql.DB) httprouter.Handle {
 		if err := json.NewEncoder(w).Encode(articles); err != nil {
 			panic(err)
 		}
-		
+
 	}
 
 }
 
-func FileUpload(db *sql.DB) httprouter.Handle {
+func GetFullLawJSON(db *sqlx.DB) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		var law models.Law
+		err := law.GetFullLaw(db, 1)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(law); err != nil {
+			panic(err)
+		}
+
+	}
+}
+func FileUpload(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
