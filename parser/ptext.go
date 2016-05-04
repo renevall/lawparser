@@ -1,13 +1,14 @@
 package parser
 
 import (
-	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
 
 	"bitbucket.org/reneval/lawparser/models"
 )
@@ -200,7 +201,7 @@ var tags = Tags{
 }
 
 //InsertLawToDB inserts all parsed law to DB
-func InsertLawToDB(db *sql.DB, law *models.Law) error {
+func InsertLawToDB(db *sqlx.DB, law *models.Law) error {
 	lawID, err := law.CreateLaw(db)
 	if err != nil {
 		log.Println(err)
@@ -238,8 +239,4 @@ func InsertLawToDB(db *sql.DB, law *models.Law) error {
 		}
 	}
 	return nil
-}
-
-func ListArticlesInDB(db *sql.DB) {
-
 }

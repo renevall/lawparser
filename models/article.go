@@ -1,8 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"log"
+
+	"github.com/jmoiron/sqlx"
 )
 
 //Article Holds the article model and his methods
@@ -14,7 +15,7 @@ type Article struct {
 }
 
 //CreateArticle Adds an Article to the DB
-func (a *Article) CreateArticle(db *sql.DB, tx *sql.Tx) error {
+func (a *Article) CreateArticle(db *sqlx.DB, tx *sqlx.Tx) error {
 	q := "Insert INTO Article(name,text,chapter_id) VALUES($1,$2,$3)"
 
 	if tx != nil {
@@ -32,7 +33,7 @@ func (a *Article) CreateArticle(db *sql.DB, tx *sql.Tx) error {
 }
 
 //GetArticles read all articles from DB
-func (a *Article) GetArticles(db *sql.DB) ([]Article, error) {
+func (a *Article) GetArticles(db *sqlx.DB) ([]Article, error) {
 	q := "SELECT ID,name, text, chapter_id FROM Article"
 	rows, err := db.Query(q)
 	defer rows.Close()

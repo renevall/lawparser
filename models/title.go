@@ -1,8 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"log"
+
+	"github.com/jmoiron/sqlx"
 )
 
 //Title struc is the model for a law Title
@@ -20,7 +21,7 @@ func (t *Title) AddChapter(chapter Chapter) []Chapter {
 }
 
 //CreateTitle Adds a Chapter to the DB
-func (t *Title) CreateTitle(db *sql.DB) (int64, error) {
+func (t *Title) CreateTitle(db *sqlx.DB) (int64, error) {
 	q := "INSERT INTO Title(name,law_id) VALUES($1,$2)"
 	result, err := db.Exec(q, t.Name, t.LawID)
 	if err != nil {
@@ -36,7 +37,7 @@ func (t *Title) CreateTitle(db *sql.DB) (int64, error) {
 }
 
 //GetTitles read all Titles from DB
-func (t *Title) GetTitles(db *sql.DB) ([]Title, error) {
+func (t *Title) GetTitles(db *sqlx.DB) ([]Title, error) {
 	q := "SELECT ID,name, law_id FROM Title"
 	rows, err := db.Query(q)
 	defer rows.Close()

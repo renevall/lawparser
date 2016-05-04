@@ -1,8 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"log"
+
+	"github.com/jmoiron/sqlx"
 )
 
 //Chapter is the model for a Law chapter
@@ -20,7 +21,7 @@ func (c *Chapter) AddArticle(article Article) []Article {
 }
 
 //CreateChapter Adds a Chapter to the DB
-func (c *Chapter) CreateChapter(db *sql.DB) (int64, error) {
+func (c *Chapter) CreateChapter(db *sqlx.DB) (int64, error) {
 	q := "INSERT INTO Chapter(name,title_id) VALUES($1,$2)"
 	result, err := db.Exec(q, c.Name, c.TitleID)
 	if err != nil {
@@ -36,7 +37,7 @@ func (c *Chapter) CreateChapter(db *sql.DB) (int64, error) {
 }
 
 //GetChapters read all Chapters from DB
-func (c *Chapter) GetChapters(db *sql.DB) ([]Chapter, error) {
+func (c *Chapter) GetChapters(db *sqlx.DB) ([]Chapter, error) {
 	q := "SELECT ID,name, title_id FROM Chapters"
 	rows, err := db.Query(q)
 	defer rows.Close()
