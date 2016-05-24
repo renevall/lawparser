@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 
@@ -202,6 +203,7 @@ var tags = Tags{
 
 //InsertLawToDB inserts all parsed law to DB
 func InsertLawToDB(db *sqlx.DB, law *models.Law) error {
+	start := time.Now()
 	lawID, err := law.CreateLaw(db)
 	if err != nil {
 		log.Println(err)
@@ -238,5 +240,7 @@ func InsertLawToDB(db *sqlx.DB, law *models.Law) error {
 
 		}
 	}
+	elapsed :=  time.Since(start)
+	log.Println("Inserting data to db took: ", elapsed)
 	return nil
 }
