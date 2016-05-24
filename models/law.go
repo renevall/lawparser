@@ -123,7 +123,7 @@ func (law *Law) GetFullLaw(db *sqlx.DB, id int) error {
 	var articles []Article
 	query, args, err = sqlx.In(q, chapterIDs)
 	query = db.Rebind(query)
-	rows, err = db.Query(query, args...)+
+	rows, err = db.Query(query, args...)
 	for rows.Next() {
 		var a Article
 		if err := rows.Scan(&a.ID, &a.Name, &a.Text, &a.ChapterID); err != nil {

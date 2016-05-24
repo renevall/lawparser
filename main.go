@@ -13,6 +13,7 @@ import (
 	"github.com/codegangsta/negroni"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -21,7 +22,12 @@ func main() {
 	if err != nil {
 		log.Fatalln("Could not connect to database")
 	}
-
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:4200"},
+		AllowedHeaders: []string{"Accept", "Content-Type",
+			"Content-Length", "Accept-Encoding", "X-CSRF-Token",
+			"Authorization", "Origin"},
+	})
 	r := httprouter.New()
 	r.POST("/api/upload", handlers.FileUpload(db))
 	r.GET("/api/articles", handlers.GetAllArticles(db))
@@ -31,6 +37,7 @@ func main() {
 		negroni.NewLogger(),
 		negroni.NewStatic(http.Dir("app")),
 	)
+	n.Use(c)
 	n.UseHandler(r)
 	n.Run(":8080")
 }

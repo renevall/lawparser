@@ -80,7 +80,7 @@ func GetFullLawJSON(db *sqlx.DB) httprouter.Handle {
 }
 func FileUpload(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		log.Println("METHOD IS " + r.Method + " AND CONTENT-TYPE IS " + r.Header.Get("Content-Type"))
 		r.ParseMultipartForm(32 << 20)
