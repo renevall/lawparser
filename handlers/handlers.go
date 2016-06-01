@@ -78,6 +78,26 @@ func GetFullLawJSON(db *sqlx.DB) httprouter.Handle {
 
 	}
 }
+
+func GetLawsJSON(db *sqlx.DB) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		var law models.Law
+		var laws []models.Law
+		laws, err := law.GetLaws(db)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(laws); err != nil {
+			panic(err)
+		}
+
+	}
+}
+
 func FileUpload(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		// w.Header().Set("Access-Control-Allow-Origin", "*")

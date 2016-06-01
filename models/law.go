@@ -59,7 +59,7 @@ func (law *Law) GetLaws(db *sqlx.DB) ([]Law, error) {
 
 	var laws []Law
 	for rows.Next() {
-		if err := rows.Scan(&law.ID, &law.Name, &law.ApprovalDate, &law.PublishDate, &law.PublishDate,
+		if err := rows.Scan(&law.ID, &law.Name, &law.ApprovalDate, &law.PublishDate,
 			&law.Journal, &law.Intro); err != nil {
 			log.Println(err)
 			return nil, err
