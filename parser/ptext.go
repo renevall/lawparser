@@ -7,6 +7,11 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
+
+	"github.com/jmoiron/sqlx"
+
+	"bitbucket.org/reneval/lawparser/models"
 )
 
 type Tag struct {
@@ -27,7 +32,7 @@ func OpenTextFile(uri string) []string {
 	return lines
 }
 
-func ParseText(uri string) *Law {
+func ParseText(uri string) *models.Law {
 	data := OpenTextFile(uri)
 	ref, order := FindTags(data)
 	parsed_law := MakeLaw2(data, order, ref)
@@ -64,10 +69,10 @@ func FindTags(data []string) (map[int]string, []int) {
 
 }
 
-func MakeLaw(data []string, index []int, ref map[int]string) Titles {
+func MakeLaw(data []string, index []int, ref map[int]string) []models.Title {
 	var title_index, chapter_index, article_index int
 	article_txt := []string{}
-	var titles = Titles{}
+	var titles = []models.Title{}
 
 	title_index, chapter_index, article_index = -1, -1, -1
 	last := index[len(index)-1]
@@ -77,7 +82,7 @@ func MakeLaw(data []string, index []int, ref map[int]string) Titles {
 			title_index = title_index + 1
 			chapter_index = -1
 			article_index = -1
-			titles = append(titles, Title{Name: data[k]})
+			titles = append(titles, models.Title{Name: data[k]})
 		}
 
 		if ref[k] == "Capitulo" {
@@ -85,7 +90,7 @@ func MakeLaw(data []string, index []int, ref map[int]string) Titles {
 			article_index = -1
 
 			titles[title_index].Chapters =
-				append(titles[title_index].Chapters, Chapter{Name: data[k]})
+				append(titles[title_index].Chapters, models.Chapter{Name: data[k]})
 			// fmt.Println("Chapter index: ", chapter_index)
 		}
 
@@ -95,7 +100,7 @@ func MakeLaw(data []string, index []int, ref map[int]string) Titles {
 
 			fmt.Println("procesando linea: ", k)
 			titles[title_index].Chapters[chapter_index].Articles =
-				append(titles[title_index].Chapters[chapter_index].Articles, Article{Name: data[k-1]})
+				append(titles[title_index].Chapters[chapter_index].Articles, models.Article{Name: data[k-1]})
 			if k != last {
 				for x := k; x < index[r+1]-1; x += 1 {
 					article_txt = append(article_txt, data[x])
@@ -131,15 +136,15 @@ func MakeLaw2(data []string, index []int, ref map[int]string) *Stack {
 
 	for r, k := range index {
 		if ref[k] == "Titulo" {
-			mStack.Push(Title{Name: data[k]})
+			mStack.Push(models.Title{Name: data[k]})
 		}
 
 		if ref[k] == "Capitulo" {
-			mStack.Push(Chapter{Name: data[k]})
+			mStack.Push(models.Chapter{Name: data[k]})
 		}
 
 		if ref[k] == "Arto" {
-			mArticle := Article{Name: data[k-1]}
+			mArticle := models.Article{Name: data[k-1]}
 			article_index = article_index + 1
 			if k != last {
 				for x := k; x < index[r+1]-1; x += 1 {
@@ -163,26 +168,26 @@ func MakeLaw2(data []string, index []int, ref map[int]string) *Stack {
 	return mStack
 }
 
-func jsonFormat(stack *Stack) *Law {
-	mLaw := new(Law)
+func jsonFormat(stack *Stack) *models.Law {
+	mLaw := new(models.Law)
 	current_title, current_chapter := -1, -1
 
 	for _, element := range stack.data {
 		switch element := element.(type) {
-		case Title:
-			mLaw.addTitle(element)
+		case models.Title:
+			mLaw.AddTitle(element)
 			current_title += 1
 			current_chapter = -1
 
-		case Chapter:
-			mLaw.Titles[current_title].Chapters = mLaw.Titles[current_title].addChapter(element)
+		case models.Chapter:
+			mLaw.Titles[current_title].Chapters = mLaw.Titles[current_title].AddChapter(element)
 			current_chapter += 1
 
-		case Article:
+		case models.Article:
 
 			if len(mLaw.Titles[current_title].Chapters) > 0 {
 				mLaw.Titles[current_title].Chapters[current_chapter].Articles =
-					mLaw.Titles[current_title].Chapters[current_chapter].addArticle(element)
+					mLaw.Titles[current_title].Chapters[current_chapter].AddArticle(element)
 			}
 		}
 	}
@@ -194,4 +199,48 @@ var tags = Tags{
 	Tag{"Capitulo", "Capí?tulo\\s|Capitulo\\s"},
 	Tag{"Artículo", "Artículo\\s\\d+"},
 	Tag{"Arto", "Art.\\s\\d+"},
+}
+
+//InsertLawToDB inserts all parsed law to DB
+func InsertLawToDB(db *sqlx.DB, law *models.Law) error {
+	start := time.Now()
+	lawID, err := law.CreateLaw(db)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	for _, title := range law.Titles {
+		title.LawID = lawID
+		titleID, err := title.CreateTitle(db)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+		for _, chapter := range title.Chapters {
+			chapter.TitleID = titleID
+			chapterID, err := chapter.CreateChapter(db)
+			if err != nil {
+				log.Println(err)
+				return nil
+			}
+
+			tx, err := db.Beginx()
+			if err != nil {
+				log.Fatal(err)
+			}
+			for _, article := range chapter.Articles {
+				article.ChapterID = chapterID
+				err := article.CreateArticle(db, tx)
+				if err != nil {
+					log.Println(err)
+					return nil
+				}
+			}
+			tx.Commit()
+
+		}
+	}
+	elapsed :=  time.Since(start)
+	log.Println("Inserting data to db took: ", elapsed)
+	return nil
 }

@@ -9,9 +9,9 @@ import (
 	// "github.com/gorilla/mux"
 	"net/http"
 
-	"database/sql"
-
+	"bitbucket.org/reneval/lawparser/models"
 	"bitbucket.org/reneval/lawparser/parser"
+	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -42,9 +42,65 @@ func ParseShow(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 }
 
-func FileUpload(db *sql.DB) httprouter.Handle {
+func GetAllArticles(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		var article models.Article
+		articles, err := article.GetArticles(db)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(articles); err != nil {
+			panic(err)
+		}
+
+	}
+
+}
+
+func GetFullLawJSON(db *sqlx.DB) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		var law models.Law
+		err := law.GetFullLaw(db, 1)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(law); err != nil {
+			panic(err)
+		}
+
+	}
+}
+
+func GetLawsJSON(db *sqlx.DB) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		var law models.Law
+		var laws []models.Law
+		laws, err := law.GetLaws(db)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(laws); err != nil {
+			panic(err)
+		}
+
+	}
+}
+
+func FileUpload(db *sqlx.DB) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		// w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		log.Println("METHOD IS " + r.Method + " AND CONTENT-TYPE IS " + r.Header.Get("Content-Type"))
 		r.ParseMultipartForm(32 << 20)
@@ -80,6 +136,10 @@ func FileUpload(db *sql.DB) httprouter.Handle {
 		// json.NewEncoder(w).Encode(Response2{true, handler.Filename + "Server", handler.Filename})
 
 		law := parser.ParseText("testlaws/" + handler.Filename)
+		inserted := parser.InsertLawToDB(db, law)
+		if inserted != nil {
+			panic(inserted)
+		}
 		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
 		w.WriteHeader(http.StatusOK)
 
