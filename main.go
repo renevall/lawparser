@@ -30,6 +30,7 @@ func main() {
 	})
 	r := httprouter.New()
 	r.POST("/api/upload", handlers.FileUpload(db))
+	r.POST("/api/concurrent", handlers.Concurrent(db))
 	r.GET("/api/articles", handlers.GetAllArticles(db))
 	r.GET("/api/laws", handlers.GetLawsJSON(db))
 	r.GET("/api/laws/:id", handlers.GetFullLawJSON(db))

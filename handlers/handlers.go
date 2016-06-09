@@ -148,3 +148,51 @@ func FileUpload(db *sqlx.DB) httprouter.Handle {
 		}
 	}
 }
+
+func Concurrent(db *sqlx.DB) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		// w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		log.Println("METHOD IS " + r.Method + " AND CONTENT-TYPE IS " + r.Header.Get("Content-Type"))
+		r.ParseMultipartForm(32 << 20)
+		fmt.Println(r.MultipartForm.File)
+
+		file, handler, err := r.FormFile("uploads[]")
+		if err != nil {
+			fmt.Println(Response{err.Error(), true})
+			fmt.Println("open file")
+			json.NewEncoder(w).Encode(Response{err.Error(), true})
+
+			return
+		}
+		defer file.Close()
+		// fmt.Fprintf(w, "%v", handler.Header)
+		f, err := os.OpenFile("./tmp/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+		if err != nil {
+			json.NewEncoder(w).Encode(Response{err.Error(), true})
+			fmt.Println(Response{err.Error(), true})
+			fmt.Println("create file")
+
+			return
+		}
+		defer f.Close()
+
+		_, err = io.Copy(f, file)
+		if err != nil {
+			fmt.Println("copy file")
+			json.NewEncoder(w).Encode(Response{err.Error(), true})
+			return
+		}
+		fmt.Println(Response{"File '" + handler.Filename + "' submited successfully", false})
+		// json.NewEncoder(w).Encode(Response2{true, handler.Filename + "Server", handler.Filename})
+
+		parser.ParseConcurrent("testlaws/" + handler.Filename)
+
+		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode("Correct"); err != nil {
+			panic(err)
+		}
+	}
+}
