@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"sync"
+
+	"bitbucket.org/reneval/lawparser/models"
 )
 
 type FoundTag struct {
@@ -36,28 +39,27 @@ func StreamLines(uri string) <-chan string {
 	return out
 }
 
-func FindCTags(in <-chan string) {
-	// out := make(chan FoundTag)
-	l := 1
-
+func FindCTags(in <-chan string, wg *sync.WaitGroup) {
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		for text := range in {
 			for _, tag := range tags {
 				r, _ := regexp.Compile(tag.regex)
 				if r.MatchString(text) {
-					// fmt.Println("Tag found")
 				}
 			}
-			l++
 		}
-		// close(out)
 	}()
 
 }
 
-func FindBasicData(in <-chan string) {
+func FindBasicData(in <-chan string, wg *sync.WaitGroup) *models.Law {
 	fmt.Println("find basic data")
-	go func() {
+	law := new(models.Law)
+	wg.Add(1)
+	go func(*models.Law) {
+		defer wg.Done()
 		for text := range in {
 			for _, tag := range intro {
 				r, _ := regexp.Compile(tag.regex)
@@ -67,43 +69,71 @@ func FindBasicData(in <-chan string) {
 					switch tag.name {
 					case "Name":
 						fmt.Println(text)
+						fillBasicData(tag.name, text, law)
 						break
 
 					case "Number":
 						fmt.Println(text)
+						fillBasicData(tag.name, text, law)
 						break
 
 					case "Aproved":
 						fmt.Println(text)
+						fillBasicData(tag.name, text, law)
 						break
 
 					case "Diary":
 						fmt.Println(text)
+						fillBasicData(tag.name, text, law)
 						break
 
+					case "Arto":
+						fmt.Println("End of Law Header Reached")
+						wg.Done()
+						return
 					}
 				}
 			}
 		}
-	}()
+	}(law)
+	return law
 }
 
-func ParseConcurrent(uri string) {
+func fillBasicData(tag string, value string, law *models.Law) {
+	switch tag {
+	case "Name":
+		law.Name = value
+		break
+	case "Number":
+		law.Name = value
+		break
+	case "Aproved":
+		law.ApprovalDate = value
+		break
+
+	case "Diary":
+		law.Journal = value
+		break
+	}
+
+}
+
+func ParseConcurrent(uri string) *models.Law {
+	wg := new(sync.WaitGroup)
+
 	fmt.Println("Parse concurrent")
 	in := StreamLines(uri)
-	chs := fanOut(in)
-	FindBasicData(chs[0])
-	FindCTags(chs[1])
+	chs := fanOut(in, wg)
+	law := FindBasicData(chs[0], wg)
+	FindCTags(chs[1], wg)
+
+	wg.Wait()
+
+	return law
 
 }
 
-// func printLanes(lines <-chan string) {
-// 	for l := range lines {
-// 		fmt.Println("channel 2 :", l)
-// 	}
-// }
-
-func fanOut(ch <-chan string) []chan string {
+func fanOut(ch <-chan string, wg *sync.WaitGroup) []chan string {
 
 	cs := []chan string{
 		make(chan string),
@@ -127,4 +157,5 @@ var intro = Tags{
 	Tag{"Number", "No\\."},
 	Tag{"Aproved", "Aprobada"},
 	Tag{"Diary", "Publicada"},
+	Tag{"Arto", "Art\\.\\s\\d+|Artículo\\s\\d+"},
 }

@@ -166,7 +166,7 @@ func Concurrent(db *sqlx.DB) httprouter.Handle {
 			return
 		}
 		defer file.Close()
-		// fmt.Fprintf(w, "%v", handler.Header)
+
 		f, err := os.OpenFile("./tmp/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			json.NewEncoder(w).Encode(Response{err.Error(), true})
@@ -183,16 +183,13 @@ func Concurrent(db *sqlx.DB) httprouter.Handle {
 			json.NewEncoder(w).Encode(Response{err.Error(), true})
 			return
 		}
+
 		fmt.Println(Response{"File '" + handler.Filename + "' submited successfully", false})
-		// json.NewEncoder(w).Encode(Response2{true, handler.Filename + "Server", handler.Filename})
-
-		parser.ParseConcurrent("testlaws/" + handler.Filename)
-
-		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
-		w.WriteHeader(http.StatusOK)
-
-		if err := json.NewEncoder(w).Encode("Correct"); err != nil {
+		law := parser.ParseConcurrent("testlaws/" + handler.Filename)
+		if err := json.NewEncoder(w).Encode(law); err != nil {
 			panic(err)
+
 		}
+
 	}
 }
