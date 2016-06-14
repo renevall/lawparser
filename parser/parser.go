@@ -54,7 +54,7 @@ func FindCTags(in <-chan string, wg *sync.WaitGroup) (chan map[int]string, chan 
 		i := 0
 
 		for text := range in {
-			fmt.Println(text)
+
 			for _, tag := range tags {
 				r, _ := regexp.Compile(tag.regex)
 				if r.MatchString(text) {
@@ -151,15 +151,14 @@ func ParseConcurrent(uri string) *models.Law {
 	wg := new(sync.WaitGroup)
 
 	done := make(chan struct{})
+	defer close(done)
 
 	fmt.Println("Parse concurrent")
 	in := StreamLines(uri)
 	chs := fanOut(done, in, wg)
 
 	law := FindBasicData(done, chs[0], wg)
-	tags, _ := FindCTags(chs[1], wg)
-
-	fmt.Println("Tags: ", <-tags)
+	FindCTags(chs[1], wg)
 
 	wg.Wait()
 
@@ -174,29 +173,39 @@ func fanOut(done <-chan struct{}, ch <-chan string, wg *sync.WaitGroup) []chan s
 		make(chan string),
 	}
 
-	var closed bool = false
 	go func() {
-		for i := range ch {
-			for r, w := range cs {
-				select {
-				case <-done:
-					closed = true
-					break
+		stoped := false
+		for mainch := range ch {
+			if !stoped {
+				stoped = broadcastCancel(done, cs[0], mainch)
 
-				default:
-					if r == 0 && !closed {
-						w <- i
-					} else if r != 0 {
-						w <- i
-					}
-				}
 			}
+			broadcast(cs[1], mainch)
+
 		}
+
 		for _, c := range cs {
 			close(c)
 		}
 	}()
 	return cs
+}
+
+func broadcast(ch chan<- string, data string) {
+	// fmt.Println(data)
+	ch <- data
+
+}
+
+func broadcastCancel(done <-chan struct{}, ch chan<- string, data string) bool {
+	select {
+	case ch <- data:
+		return false
+	case <-done:
+		return true
+	}
+
+	return false
 }
 
 var intro = Tags{
