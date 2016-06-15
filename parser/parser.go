@@ -3,10 +3,14 @@ package parser
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"regexp"
 	"sort"
+	"strings"
 	"sync"
+	"time"
 
 	"bitbucket.org/reneval/lawparser/models"
 )
@@ -31,6 +35,7 @@ func StreamLines(uri string) <-chan string {
 		defer f.Close()
 
 		scanner := bufio.NewScanner(f)
+
 		for scanner.Scan() {
 			out <- scanner.Text()
 
@@ -40,6 +45,26 @@ func StreamLines(uri string) <-chan string {
 	return out
 }
 
+//prepareData loads file to memory from the streamer to form the law
+func prepareData(uri string, wg *sync.WaitGroup) []string {
+
+	var lines []string
+
+	t := time.Now()
+	file, err := ioutil.ReadFile(uri)
+	if err != nil {
+		log.Fatal(err)
+	}
+	lines = strings.Split(string(file), "\n")
+
+	ts := time.Since(t)
+	fmt.Println(ts)
+
+	return lines
+
+}
+
+//FindCTags finds the key words looking in the file
 func FindCTags(in <-chan string, wg *sync.WaitGroup) (chan map[int]string, chan []int) {
 	wg.Add(1)
 
@@ -87,6 +112,7 @@ func FindCTags(in <-chan string, wg *sync.WaitGroup) (chan map[int]string, chan 
 
 }
 
+//FindBasicData process the data before first article
 func FindBasicData(done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) *models.Law {
 	fmt.Println("find basic data")
 	law := new(models.Law)
@@ -147,6 +173,7 @@ func fillBasicData(tag string, value string, law *models.Law) {
 
 }
 
+//ParseConcurrent parses a law using goroutines
 func ParseConcurrent(uri string) *models.Law {
 	wg := new(sync.WaitGroup)
 
@@ -159,13 +186,16 @@ func ParseConcurrent(uri string) *models.Law {
 
 	law := FindBasicData(done, chs[0], wg)
 	FindCTags(chs[1], wg)
+	lines := prepareData(uri, wg)
 
 	wg.Wait()
+	fmt.Println(len(lines))
 
 	return law
 
 }
 
+//fanOut distributes the readed files lines to different channels to process in parallel
 func fanOut(done <-chan struct{}, ch <-chan string, wg *sync.WaitGroup) []chan string {
 
 	cs := []chan string{
