@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -69,24 +70,28 @@ func prepareData(uri string, wg *sync.WaitGroup) []string {
 }
 
 //FindCTags finds the key words looking in the file
-func FindCTags(in <-chan string, wg *sync.WaitGroup) chan foundTag {
+func FindCTags(in <-chan string, wg *sync.WaitGroup) (chan foundTag, chan []int) {
 	fmt.Println("FindCTags reached")
 	wg.Add(1)
+	var keys []int
 
 	chm := make(chan foundTag)
+	chi := make(chan []int)
 
-	go func(chan foundTag) {
+	go func(chan foundTag, chan []int) {
 		ti := time.Now()
 
 		i := 0
 		pTags := prepareTags(tags)
+		var ft []foundTag
 
 		for text := range in {
 			for _, reg := range pTags {
 				if reg.exp.MatchString(text) {
 					//t[i+1] = tag.name
 					f := foundTag{tagname: reg.name, line: i + 1}
-					chm <- f
+					ft = append(ft, f)
+					keys = append(keys, i+1)
 
 					break
 				}
@@ -94,15 +99,22 @@ func FindCTags(in <-chan string, wg *sync.WaitGroup) chan foundTag {
 			i++
 		}
 
+		chi <- keys
+
+		for _, v := range ft {
+			chm <- v
+		}
+		sort.Ints(keys)
+
 		ts := time.Since(ti)
 		fmt.Println("FindCTags Time:", ts)
 		close(chm)
 		wg.Done()
 
-	}(chm)
+	}(chm, chi)
 
 	// fmt.Println(chkeys)
-	return chm
+	return chm, chi
 
 }
 
@@ -196,9 +208,10 @@ func ParseConcurrent(uri string) *models.Law {
 	chs := fanOut(done, in, wg)
 
 	law := FindBasicData(done, chs[0], wg)
-	tags := FindCTags(chs[1], wg)
+	tags, chi := FindCTags(chs[1], wg)
 	lines := prepareData(uri, wg)
-	makeLaw(lines, law, tags, wg)
+	lawLIFO := makeLaw(lines, law, tags, chi, wg)
+	jsonFormat2(lawLIFO, law)
 
 	wg.Wait()
 	fmt.Println(len(lines))
@@ -208,24 +221,78 @@ func ParseConcurrent(uri string) *models.Law {
 }
 
 func makeLaw(lines []string, law *models.Law, tag <-chan foundTag,
-	wg *sync.WaitGroup) {
-	// var article_index int
-	// article_txt := []string{}
+	index <-chan []int, wg *sync.WaitGroup) *Stack {
 
-	// article_index = -1
-	// last := index[len(index)-1]
+	mStack := NewStack(3)
+	tags := <-index
+	last := tags[len(tags)-1]
+	r := 0
 
-	//mStack := NewStack(3)
-	// i := 0
 	for t := range tag {
 		switch t.tagname {
 		case "Titulo":
 			fmt.Println("Titulo ", lines[t.line])
+			mStack.Push(models.Title{Name: lines[t.line]})
+
 		case "Capitulo":
 			fmt.Println("Capitulo ", lines[t.line])
+			mStack.Push(models.Chapter{Name: lines[t.line]})
+
+		case "Arto":
+			article := feedArticle(lines, last, t, tags, r)
+			mStack.Push(article)
 
 		}
+		r++
 	}
+
+	return mStack
+}
+
+func feedArticle(lines []string, last int, t foundTag, tags []int, r int) models.Article {
+	article_txt := []string{}
+	mArticle := models.Article{Name: lines[t.line-1]}
+
+	if t.line != last {
+		for x := t.line; x < tags[r+1]-1; x += 1 {
+			article_txt = append(article_txt, lines[x])
+		}
+	} else {
+		for x := t.line; x <= len(lines)-1; x += 1 {
+			article_txt = append(article_txt, lines[x])
+		}
+	}
+
+	mArticle.Text = strings.Join(article_txt, " ")
+
+	return mArticle
+
+}
+
+func jsonFormat2(stack *Stack, mLaw *models.Law) *models.Law {
+	//mLaw := new(models.Law)
+	current_title, current_chapter := -1, -1
+
+	for _, element := range stack.data {
+		switch element := element.(type) {
+		case models.Title:
+			mLaw.AddTitle(element)
+			current_title += 1
+			current_chapter = -1
+
+		case models.Chapter:
+			mLaw.Titles[current_title].Chapters = mLaw.Titles[current_title].AddChapter(element)
+			current_chapter += 1
+
+		case models.Article:
+
+			if len(mLaw.Titles[current_title].Chapters) > 0 {
+				mLaw.Titles[current_title].Chapters[current_chapter].Articles =
+					mLaw.Titles[current_title].Chapters[current_chapter].AddArticle(element)
+			}
+		}
+	}
+	return mLaw
 }
 
 //fanOut distributes the readed files lines to different channels to process in parallel
