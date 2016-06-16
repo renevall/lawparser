@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"regexp"
-	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -15,9 +14,14 @@ import (
 	"bitbucket.org/reneval/lawparser/models"
 )
 
-type FoundTag struct {
+type foundTag struct {
 	tagname string
 	line    int
+}
+
+type preparedTag struct {
+	name string
+	exp  *regexp.Regexp
 }
 
 //stream lines to input channel
@@ -58,68 +62,72 @@ func prepareData(uri string, wg *sync.WaitGroup) []string {
 	lines = strings.Split(string(file), "\n")
 
 	ts := time.Since(t)
-	fmt.Println(ts)
+	fmt.Println("Prepare data: ", ts)
 
 	return lines
 
 }
 
 //FindCTags finds the key words looking in the file
-func FindCTags(in <-chan string, wg *sync.WaitGroup) (chan map[int]string, chan []int) {
+func FindCTags(in <-chan string, wg *sync.WaitGroup) chan foundTag {
+	fmt.Println("FindCTags reached")
 	wg.Add(1)
 
-	chm := make(chan map[int]string)
-	chkeys := make(chan []int)
+	chm := make(chan foundTag)
 
-	go func(chan map[int]string, chan []int) {
-
-		var keys []int
-		t := make(map[int]string)
+	go func(chan foundTag) {
+		ti := time.Now()
 
 		i := 0
+		pTags := prepareTags(tags)
 
 		for text := range in {
+			for _, reg := range pTags {
+				if reg.exp.MatchString(text) {
+					//t[i+1] = tag.name
+					f := foundTag{tagname: reg.name, line: i + 1}
+					chm <- f
 
-			for _, tag := range tags {
-				r, _ := regexp.Compile(tag.regex)
-				if r.MatchString(text) {
-					t[i+1] = tag.name
 					break
 				}
 			}
 			i++
 		}
 
-		chm <- t
-
-		for k, v := range t {
-			keys = append(keys, k)
-			if v == "Titulo" {
-				title = title + 1
-			}
-		}
-
-		sort.Ints(keys)
-		chkeys <- keys
-
+		ts := time.Since(ti)
+		fmt.Println("FindCTags Time:", ts)
 		close(chm)
-		close(chkeys)
 		wg.Done()
 
-	}(chm, chkeys)
+	}(chm)
 
-	return chm, chkeys
+	// fmt.Println(chkeys)
+	return chm
 
+}
+
+func prepareTags(tags []Tag) []preparedTag {
+	t := time.Now()
+	var ptags []preparedTag
+	for _, v := range tags {
+		r, _ := regexp.Compile(v.regex)
+		ptag := preparedTag{v.name, r}
+		ptags = append(ptags, ptag)
+
+	}
+	ts := time.Since(t)
+	fmt.Println("prepareTags Time:", ts)
+	return ptags
 }
 
 //FindBasicData process the data before first article
 func FindBasicData(done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) *models.Law {
 	fmt.Println("find basic data")
 	law := new(models.Law)
-
+	t := time.Now()
 	wg.Add(1)
 	go func(*models.Law) {
-		defer wg.Done()
+		// defer wg.Done()
 		for text := range in {
 			for _, tag := range intro {
 				r, _ := regexp.Compile(tag.regex)
@@ -145,12 +153,15 @@ func FindBasicData(done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) *
 						fmt.Println("End of Law Header Reached")
 						done <- struct{}{}
 						wg.Done()
+						ts := time.Since(t)
+						fmt.Println("FindBasicData", ts)
 						return
 					}
 				}
 			}
 		}
 	}(law)
+
 	return law
 }
 
@@ -185,14 +196,36 @@ func ParseConcurrent(uri string) *models.Law {
 	chs := fanOut(done, in, wg)
 
 	law := FindBasicData(done, chs[0], wg)
-	FindCTags(chs[1], wg)
+	tags := FindCTags(chs[1], wg)
 	lines := prepareData(uri, wg)
+	makeLaw(lines, law, tags, wg)
 
 	wg.Wait()
 	fmt.Println(len(lines))
 
 	return law
 
+}
+
+func makeLaw(lines []string, law *models.Law, tag <-chan foundTag,
+	wg *sync.WaitGroup) {
+	// var article_index int
+	// article_txt := []string{}
+
+	// article_index = -1
+	// last := index[len(index)-1]
+
+	//mStack := NewStack(3)
+	// i := 0
+	for t := range tag {
+		switch t.tagname {
+		case "Titulo":
+			fmt.Println("Titulo ", lines[t.line])
+		case "Capitulo":
+			fmt.Println("Capitulo ", lines[t.line])
+
+		}
+	}
 }
 
 //fanOut distributes the readed files lines to different channels to process in parallel
@@ -222,9 +255,7 @@ func fanOut(done <-chan struct{}, ch <-chan string, wg *sync.WaitGroup) []chan s
 }
 
 func broadcast(ch chan<- string, data string) {
-	// fmt.Println(data)
 	ch <- data
-
 }
 
 func broadcastCancel(done <-chan struct{}, ch chan<- string, data string) bool {
