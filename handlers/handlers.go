@@ -9,8 +9,11 @@ import (
 	// "github.com/gorilla/mux"
 	"net/http"
 
+	"bitbucket.org/reneval/lawparser/files"
 	"bitbucket.org/reneval/lawparser/models"
 	"bitbucket.org/reneval/lawparser/parser"
+	"bitbucket.org/reneval/lawparser/response"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
 )
@@ -154,39 +157,36 @@ func Concurrent(db *sqlx.DB) httprouter.Handle {
 		// w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		log.Println("METHOD IS " + r.Method + " AND CONTENT-TYPE IS " + r.Header.Get("Content-Type"))
-		r.ParseMultipartForm(32 << 20)
-		fmt.Println(r.MultipartForm.File)
 
-		file, handler, err := r.FormFile("uploads[]")
-		if err != nil {
-			fmt.Println(Response{err.Error(), true})
-			fmt.Println("open file")
-			json.NewEncoder(w).Encode(Response{err.Error(), true})
-
-			return
-		}
+		file, header, err := files.ReadFromHTTP(r)
 		defer file.Close()
 
-		f, err := os.OpenFile("./tmp/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
-			json.NewEncoder(w).Encode(Response{err.Error(), true})
-			fmt.Println(Response{err.Error(), true})
-			fmt.Println("create file")
+			log.Println(err)
+			res := response.Error{}
+			res.Wrap(response.StatusError, err.Error())
+			if err := json.NewEncoder(w).Encode(res); err != nil {
+				panic(err)
 
-			return
-		}
-		defer f.Close()
-
-		_, err = io.Copy(f, file)
-		if err != nil {
-			fmt.Println("copy file")
-			json.NewEncoder(w).Encode(Response{err.Error(), true})
-			return
+			}
 		}
 
-		fmt.Println(Response{"File '" + handler.Filename + "' submited successfully", false})
-		law := parser.ParseConcurrent("testlaws/" + handler.Filename)
-		if err := json.NewEncoder(w).Encode(law); err != nil {
+		err = files.SaveFile(file, header.Filename, "./tmp/")
+		if err != nil {
+			log.Println(err)
+			res := response.Error{}
+			res.Wrap(response.StatusError, err.Error())
+			if err := json.NewEncoder(w).Encode(res); err != nil {
+				panic(err)
+
+			}
+		}
+
+		law := parser.ParseConcurrent("testlaws/" + header.Filename)
+
+		res := response.Response{}
+		res.Wrap(response.StatusSuccess, law)
+		if err := json.NewEncoder(w).Encode(res); err != nil {
 			panic(err)
 
 		}

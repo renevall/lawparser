@@ -1,9 +1,10 @@
-//Package file provides the method for file handling.
-package file
+//Package files provides the method for file handling.
+package files
 
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -28,12 +29,8 @@ func ReadFromHTTP(r *http.Request) (multipart.File, *multipart.FileHeader, error
 
 //SaveFile picks a file a moves it to the requested location
 func SaveFile(file multipart.File, name string, path string) error {
-	f, err := os.OpenFile("./tmp/"+name, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile(path+name, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		//json.NewEncoder(w).Encode(Response{err.Error(), true})
-		//fmt.Println(Response{err.Error(), true})
-		fmt.Println("Could not open tmp folder")
-
 		return errors.Wrap(err, "Could not open tmp folder")
 	}
 	defer f.Close()
@@ -46,4 +43,13 @@ func SaveFile(file multipart.File, name string, path string) error {
 
 	return nil
 
+}
+
+//OpenFile returns the file considering the uri it recieves
+func OpenFile(uri string) ([]byte, error) {
+	file, err := ioutil.ReadFile(uri)
+	if err != nil {
+		return nil, errors.Wrap(err, "Could not open file")
+	}
+	return file, nil
 }
