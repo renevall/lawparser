@@ -231,11 +231,11 @@ func makeLaw(lines []string, law *models.Law, tag <-chan foundTag,
 	for t := range tag {
 		switch t.tagname {
 		case "Titulo":
-			fmt.Println("Titulo ", lines[t.line])
+			// fmt.Println("Titulo ", lines[t.line])
 			mStack.Push(models.Title{Name: lines[t.line]})
 
 		case "Capitulo":
-			fmt.Println("Capitulo ", lines[t.line])
+			// fmt.Println("Capitulo ", lines[t.line])
 			mStack.Push(models.Chapter{Name: lines[t.line]})
 
 		case "Arto":

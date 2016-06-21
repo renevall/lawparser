@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 	// "github.com/gorilla/mux"
 	"net/http"
 
@@ -156,6 +159,9 @@ func Concurrent(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		// w.Header().Set("Access-Control-Allow-Origin", "*")
 
+		//TODO use path from config file
+		dir := "./parsed_laws/"
+
 		log.Println("METHOD IS " + r.Method + " AND CONTENT-TYPE IS " + r.Header.Get("Content-Type"))
 
 		file, header, err := files.ReadFromHTTP(r)
@@ -170,8 +176,22 @@ func Concurrent(db *sqlx.DB) httprouter.Handle {
 
 			}
 		}
+		fname := strings.TrimSuffix(header.Filename, filepath.Ext(header.Filename))
 
-		err = files.SaveFile(file, header.Filename, "./tmp/")
+		path, err := files.TempFile(dir, fname)
+		fmt.Println(path)
+
+		if err != nil {
+			log.Println(err)
+			res := response.Error{}
+			res.Wrap(response.StatusError, err.Error())
+			if err := json.NewEncoder(w).Encode(res); err != nil {
+				panic(err)
+
+			}
+		}
+
+		err = files.SaveUploadedFile(file, header.Filename, "./tmp/")
 		if err != nil {
 			log.Println(err)
 			res := response.Error{}
@@ -185,7 +205,25 @@ func Concurrent(db *sqlx.DB) httprouter.Handle {
 		law := parser.ParseConcurrent("testlaws/" + header.Filename)
 
 		res := response.Response{}
-		res.Wrap(response.StatusSuccess, law)
+		res.Wrap(response.StatusSuccess, "Saved Succed")
+
+		b, err := json.Marshal(law)
+		if err != nil {
+			log.Println(err)
+		}
+
+		fmt.Println("path: ", path.Name())
+		if err := ioutil.WriteFile(path.Name()+".json", b, 0644); err != nil {
+			log.Println(err)
+			res := response.Error{}
+			res.Wrap(response.StatusError, err.Error())
+			if err := json.NewEncoder(w).Encode(res); err != nil {
+				panic(err)
+
+			}
+		}
+
+		//TODO SavetoJson instead of priting to screen
 		if err := json.NewEncoder(w).Encode(res); err != nil {
 			panic(err)
 

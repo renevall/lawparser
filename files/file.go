@@ -27,8 +27,8 @@ func ReadFromHTTP(r *http.Request) (multipart.File, *multipart.FileHeader, error
 
 }
 
-//SaveFile picks a file a moves it to the requested location
-func SaveFile(file multipart.File, name string, path string) error {
+//SaveUploadedFile picks a file a moves it to the requested location
+func SaveUploadedFile(file multipart.File, name string, path string) error {
 	f, err := os.OpenFile(path+name, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return errors.Wrap(err, "Could not open tmp folder")
