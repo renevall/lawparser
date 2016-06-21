@@ -18,6 +18,12 @@ type Law struct {
 	Intro        string  `json:"intro"`
 }
 
+//TmpLaw hold basic data to access files
+type TmpLaw struct {
+	Name string `json:"name"`
+	Path string `json:"path"`
+}
+
 //AddTitle adds parsed title data to parsed law object
 func (law *Law) AddTitle(title Title) []Title {
 	law.Titles = append(law.Titles, title)

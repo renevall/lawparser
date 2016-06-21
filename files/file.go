@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 
+	"bitbucket.org/reneval/lawparser/models"
+
 	"github.com/pkg/errors"
 )
 
@@ -52,4 +54,22 @@ func OpenFile(uri string) ([]byte, error) {
 		return nil, errors.Wrap(err, "Could not open file")
 	}
 	return file, nil
+}
+
+//ListDirFiles list all files but dirs
+func ListDirFiles(uri string) ([]models.TmpLaw, error) {
+	files, err := ioutil.ReadDir(uri)
+	var filelist []models.TmpLaw
+	if err != nil {
+		return nil, errors.Wrap(err, "Could not open Folder")
+	}
+
+	for _, f := range files {
+		if !f.IsDir() {
+			file := models.TmpLaw{Name: f.Name(), Path: uri}
+			filelist = append(filelist, file)
+		}
+	}
+
+	return filelist, nil
 }

@@ -13,3 +13,6 @@ lawparser
 
 #Direct Link to Front End App
 app
+
+#tmp laws
+parsed_laws/*.json

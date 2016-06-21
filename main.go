@@ -33,6 +33,7 @@ func main() {
 	r.POST("/api/concurrent", handlers.Concurrent(db))
 	r.GET("/api/articles", handlers.GetAllArticles(db))
 	r.GET("/api/laws", handlers.GetLawsJSON(db))
+	r.GET("/api/tmp", handlers.GetLawsTMP())
 	r.GET("/api/laws/:id", handlers.GetFullLawJSON(db))
 	r.GET("/api/laws/:id/full", handlers.GetFullLawJSON(db))
 	n := negroni.New(

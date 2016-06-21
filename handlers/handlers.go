@@ -85,6 +85,29 @@ func GetFullLawJSON(db *sqlx.DB) httprouter.Handle {
 	}
 }
 
+//GetLawsTMP responds with all tmp laws (flat file)
+func GetLawsTMP() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		w.Header().Set("Content-Type", "application/json; charset= UTF-8")
+		w.WriteHeader(http.StatusOK)
+		laws, err := files.ListDirFiles("./parsed_laws")
+		if err != nil {
+			fmt.Println(Response{err.Error(), true})
+			fmt.Println("open file")
+			json.NewEncoder(w).Encode(Response{err.Error(), true})
+
+			return
+		}
+
+		res := response.Response{}
+
+		res.Wrap(response.StatusSuccess, laws)
+
+		json.NewEncoder(w).Encode(res)
+	}
+}
+
+//GetLawsJSON responds with all laws from db
 func GetLawsJSON(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		var law models.Law
@@ -179,6 +202,7 @@ func Concurrent(db *sqlx.DB) httprouter.Handle {
 		fname := strings.TrimSuffix(header.Filename, filepath.Ext(header.Filename))
 
 		path, err := files.TempFile(dir, fname)
+		defer os.Remove(path.Name())
 		fmt.Println(path)
 
 		if err != nil {
