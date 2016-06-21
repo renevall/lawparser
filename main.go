@@ -29,13 +29,24 @@ func main() {
 			"Authorization", "Origin"},
 	})
 	r := httprouter.New()
-	r.POST("/api/upload", handlers.FileUpload(db))
-	r.POST("/api/concurrent", handlers.Concurrent(db))
+	// r.POST("/api/upload", handlers.FileUpload(db))
+
+	//Law
+	r.GET("/api/laws", handlers.GetLawsJSON(db))             //Get all Laws
+	r.GET("/api/laws/:id", handlers.GetFullLawJSON(db))      //Get a law header
+	r.GET("/api/laws/:id/full", handlers.GetFullLawJSON(db)) //Get a full law
+	r.GET("/api/tmp", handlers.GetLawsTMP())                 //Get tmp law (before veryfing it)
+
+	r.POST("/api/laws/parse", handlers.ParseLawFile(db)) //parse law
+	r.POST("/api/laws", handlers.ParseLawFile(db))       //create new law
+
+	r.PUT("/api/laws/:id", handlers.GetFullLawJSON(db))    //Update Law
+	r.PATCH("/api/laws/:id", handlers.GetFullLawJSON(db))  //Partially Update Law
+	r.DELETE("/api/laws/:id", handlers.GetFullLawJSON(db)) //Delete Law
+
+	//Article
 	r.GET("/api/articles", handlers.GetAllArticles(db))
-	r.GET("/api/laws", handlers.GetLawsJSON(db))
-	r.GET("/api/tmp", handlers.GetLawsTMP())
-	r.GET("/api/laws/:id", handlers.GetFullLawJSON(db))
-	r.GET("/api/laws/:id/full", handlers.GetFullLawJSON(db))
+
 	n := negroni.New(
 		negroni.NewRecovery(),
 		negroni.NewLogger(),
