@@ -9,13 +9,16 @@ import (
 
 //Law struct with most methods.
 type Law struct {
-	ID           int     `json:"id"`
-	Name         string  `json:"name"`
-	Titles       []Title `json:"titles"`
-	ApprovalDate string  `json:"approvalDate"`
-	PublishDate  string  `json:"publishDate"`
-	Journal      string  `json:"journal"`
-	Intro        string  `json:"intro"`
+	ID           int       `json:"id"`
+	Name         string    `json:"name"`
+	ApprovalDate string    `json:"approvalDate"`
+	PublishDate  string    `json:"publishDate"`
+	Journal      string    `json:"journal"`
+	Intro        string    `json:"intro"`
+	Reviewed     bool      `json:"reviewed"`
+	Rev          int       `json:"rev"`
+	Titles       []Title   `json:"titles"`
+	Articles     []Article `json:"titles"`
 }
 
 //TmpLaw hold basic data to access files
@@ -30,9 +33,16 @@ func (law *Law) AddTitle(title Title) []Title {
 	return law.Titles
 }
 
+//AddArticle adds parsed article data to parsed law object
+//when there is no title or chapter
+func (law *Law) addArticle(article Article) []Article {
+	law.Articles = append(law.Articles, article)
+	return law.Articles
+}
+
 //CreateLaw Adds a Law to the DB
 func (law *Law) CreateLaw(db *sqlx.DB) (int64, error) {
-	q := "INSERT INTO LAW(name,approval_date,publish_date,journal,intro) VALUES($1,$2,$3,$4,$5)"
+	q := "INSERT INTO LAW(name,approval_date,publish_date,journal,intro,reviewed) VALUES($1,$2,$3,$4,$5,$6)"
 
 	//TODO Parse Date from txt file
 	law.PublishDate = time.Now().String()

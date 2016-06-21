@@ -12,6 +12,7 @@ type Chapter struct {
 	Name     string    `json:"name"`
 	Articles []Article `json:"articles"`
 	TitleID  int64     `json:"titleID"`
+	reviewed bool      `json:"reviewed"`
 }
 
 //AddArticle adds parsed article data to parsed law object

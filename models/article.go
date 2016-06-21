@@ -12,6 +12,7 @@ type Article struct {
 	Name      string `json:"name"`
 	Text      string `json:"text"`
 	ChapterID int64  `json:"chapterID"`
+	reviewed  bool   `json:"reviewed"`
 }
 
 //CreateArticle Adds an Article to the DB

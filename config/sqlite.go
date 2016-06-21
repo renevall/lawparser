@@ -7,19 +7,24 @@ var InitSqls = []string{
 	'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'name'	TEXT NOT NULL,
 	'text'  TEXT NOT NULL,
-	'chapter_id'	INTEGER NOT NULL
+	'chapter_id'	INTEGER,
+	'law_id'	INTEGER,
+	'reviewed' INTEGER
 );`,
 	`
     CREATE TABLE IF NOT EXISTS 'Chapter' (
 	'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'name'	INTEGER NOT NULL,
-	'title_id'	INTEGER NOT NULL
+	'title_id'	INTEGER,
+	'law_id'	INTEGER,
+	'reviewed' INTEGER
 );`,
 	`
     CREATE TABLE IF NOT EXISTS "Title" (
 	'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'name'	TEXT,
-	'law_id'	INTEGER
+	'law_id'	INTEGER,
+	'reviewed' INTEGER
 );`,
 	`
     CREATE TABLE IF NOT EXISTS "Law" (
@@ -28,6 +33,8 @@ var InitSqls = []string{
 	'approval_date'	TEXT NOT NULL,
 	'publish_date'	TEXT NOT NULL,
 	'journal'	TEXT,
-	'intro'	Text
+	'intro'	TEXT,
+	'reviewed' INTEGER,
+	'rev' INTEGER
 );`,
 }
