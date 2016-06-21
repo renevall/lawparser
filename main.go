@@ -35,7 +35,8 @@ func main() {
 	r.GET("/api/laws", handlers.GetLawsJSON(db))             //Get all Laws
 	r.GET("/api/laws/:id", handlers.GetFullLawJSON(db))      //Get a law header
 	r.GET("/api/laws/:id/full", handlers.GetFullLawJSON(db)) //Get a full law
-	r.GET("/api/tmp", handlers.GetLawsTMP())                 //Get tmp law (before veryfing it)
+	r.GET("/api/tmp/laws", handlers.GetLawsTMP())            //Get tmp law (before veryfing it)
+	r.GET("/api/tmp/laws/:name", handlers.ReadTMPLaw())      //Get tmp law (before veryfing it)
 
 	r.POST("/api/laws/parse", handlers.ParseLawFile(db)) //parse law
 	r.POST("/api/laws", handlers.ParseLawFile(db))       //create new law

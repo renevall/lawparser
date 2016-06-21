@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	// "github.com/gorilla/mux"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
+	"github.com/pkg/errors"
 )
 
 type Response struct {
@@ -127,6 +129,7 @@ func GetLawsJSON(db *sqlx.DB) httprouter.Handle {
 	}
 }
 
+//TODO: MAKE SAVE FROM JSON FILE
 func FileUpload(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		// w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -178,7 +181,9 @@ func FileUpload(db *sqlx.DB) httprouter.Handle {
 	}
 }
 
-func Concurrent(db *sqlx.DB) httprouter.Handle {
+//ParseLawFile recieves a Law in txt format from a http request, parses it,
+//then proceeds to save it to a JSON file
+func ParseLawFile(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		// w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -251,6 +256,48 @@ func Concurrent(db *sqlx.DB) httprouter.Handle {
 		if err := json.NewEncoder(w).Encode(res); err != nil {
 			panic(err)
 
+		}
+
+	}
+}
+
+//TODO READ FROM TEMP LAW
+
+func ReadTMPLaw() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		name := p.ByName("name")
+		if name == "" {
+			res := response.Error{}
+
+			err := errors.Wrap(errors.New("Expected Param"), "Param name not present")
+			res.Wrap(response.StatusError, err.Error())
+
+			if err := json.NewEncoder(w).Encode(res); err != nil {
+				panic(err)
+			}
+		}
+
+		path := path.Join("./parsed_laws", name)
+		file, err := files.OpenFile(path)
+		if err != nil {
+			res := response.Error{}
+			res.Wrap(response.StatusError, err.Error())
+			if err := json.NewEncoder(w).Encode(res); err != nil {
+				panic(err)
+			}
+			return
+		}
+		law := new(models.Law)
+
+		//TODO Review if it is posible to not unmarshall and send json from file
+		//10ms diference so far
+		json.Unmarshal(file, law)
+
+		res := response.Response{}
+		res.Wrap(response.StatusSuccess, law)
+
+		if err := json.NewEncoder(w).Encode(res); err != nil {
+			panic(err)
 		}
 
 	}
