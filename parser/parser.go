@@ -272,6 +272,7 @@ func feedArticle(lines []string, last int, t foundTag, tags []int, r int) models
 func jsonFormat2(stack *Stack, mLaw *models.Law) *models.Law {
 
 	currentTitle, currentChapter := -1, -1
+	hasChapter, hasTitle := false, false
 
 	for _, element := range stack.data {
 		switch element := element.(type) {
@@ -280,6 +281,7 @@ func jsonFormat2(stack *Stack, mLaw *models.Law) *models.Law {
 			mLaw.AddTitle(element)
 			currentTitle++
 			currentChapter = -1
+			hasTitle = true
 
 		case models.Chapter:
 			fmt.Println("Chapter", element.Name)
@@ -292,13 +294,14 @@ func jsonFormat2(stack *Stack, mLaw *models.Law) *models.Law {
 				mLaw.AddChapter(element)
 			}
 			currentChapter++
+			hasChapter = true
 		case models.Article:
 			fmt.Println("Article", element.Name)
 
 			//if law has titles
-			if len(mLaw.Titles) > 0 {
+			if hasTitle {
 				//if it has titles and Chapters
-				if len(mLaw.Titles[currentTitle].Chapters) > 0 {
+				if hasChapter {
 					fmt.Println("Adding Article under Title: ", currentTitle,
 						" and Chapter: ", currentChapter)
 
@@ -306,7 +309,7 @@ func jsonFormat2(stack *Stack, mLaw *models.Law) *models.Law {
 						mLaw.Titles[currentTitle].Chapters[currentChapter].AddArticle(element)
 				}
 				//if Law doesnt have titles but does chapters
-			} else if len(mLaw.Titles[currentTitle].Chapters) > 0 {
+			} else if hasChapter {
 				mLaw.Chapters[currentChapter].Articles =
 					mLaw.Chapters[currentChapter].AddArticle(element)
 				//if law only has articles
