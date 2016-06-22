@@ -232,11 +232,11 @@ func makeLaw(lines []string, law *models.Law, tag <-chan foundTag,
 		switch t.tagname {
 		case "Titulo":
 			// fmt.Println("Titulo ", lines[t.line])
-			mStack.Push(models.Title{Name: lines[t.line]})
+			mStack.Push(models.Title{Name: lines[t.line], Reviewed: false})
 
 		case "Capitulo":
 			// fmt.Println("Capitulo ", lines[t.line])
-			mStack.Push(models.Chapter{Name: lines[t.line]})
+			mStack.Push(models.Chapter{Name: lines[t.line], Reviewed: false})
 
 		case "Arto":
 			article := feedArticle(lines, last, t, tags, r)
@@ -251,7 +251,7 @@ func makeLaw(lines []string, law *models.Law, tag <-chan foundTag,
 
 func feedArticle(lines []string, last int, t foundTag, tags []int, r int) models.Article {
 	article_txt := []string{}
-	mArticle := models.Article{Name: lines[t.line-1]}
+	mArticle := models.Article{Name: lines[t.line-1], Reviewed: false}
 
 	if t.line != last {
 		for x := t.line; x < tags[r+1]-1; x += 1 {
@@ -270,25 +270,48 @@ func feedArticle(lines []string, last int, t foundTag, tags []int, r int) models
 }
 
 func jsonFormat2(stack *Stack, mLaw *models.Law) *models.Law {
-	//mLaw := new(models.Law)
-	current_title, current_chapter := -1, -1
+
+	currentTitle, currentChapter := -1, -1
 
 	for _, element := range stack.data {
 		switch element := element.(type) {
 		case models.Title:
+			fmt.Println("Title", element.Name)
 			mLaw.AddTitle(element)
-			current_title += 1
-			current_chapter = -1
+			currentTitle++
+			currentChapter = -1
 
 		case models.Chapter:
-			mLaw.Titles[current_title].Chapters = mLaw.Titles[current_title].AddChapter(element)
-			current_chapter += 1
+			fmt.Println("Chapter", element.Name)
 
+			if len(mLaw.Titles) > 0 {
+				fmt.Println("Adding Chapter under Title: ", currentTitle)
+				mLaw.Titles[currentTitle].Chapters = mLaw.Titles[currentTitle].AddChapter(element)
+			} else {
+				fmt.Println("Adding Chapter under Law: ")
+				mLaw.AddChapter(element)
+			}
+			currentChapter++
 		case models.Article:
+			fmt.Println("Article", element.Name)
 
-			if len(mLaw.Titles[current_title].Chapters) > 0 {
-				mLaw.Titles[current_title].Chapters[current_chapter].Articles =
-					mLaw.Titles[current_title].Chapters[current_chapter].AddArticle(element)
+			//if law has titles
+			if len(mLaw.Titles) > 0 {
+				//if it has titles and Chapters
+				if len(mLaw.Titles[currentTitle].Chapters) > 0 {
+					fmt.Println("Adding Article under Title: ", currentTitle,
+						" and Chapter: ", currentChapter)
+
+					mLaw.Titles[currentTitle].Chapters[currentChapter].Articles =
+						mLaw.Titles[currentTitle].Chapters[currentChapter].AddArticle(element)
+				}
+				//if Law doesnt have titles but does chapters
+			} else if len(mLaw.Titles[currentTitle].Chapters) > 0 {
+				mLaw.Chapters[currentChapter].Articles =
+					mLaw.Chapters[currentChapter].AddArticle(element)
+				//if law only has articles
+			} else {
+				mLaw.AddArticle(element)
 			}
 		}
 	}

@@ -200,8 +200,8 @@ func jsonFormat(stack *Stack) *models.Law {
 var tags = Tags{
 	Tag{"Titulo", "TÍTULO"},
 	Tag{"Capitulo", "Capí?tulo\\s|Capitulo\\s"},
-	Tag{"Artículo", "Artículo\\s\\d+"},
-	Tag{"Arto", "Art.\\s\\d+"},
+	// Tag{"Artículo", "Artículo\\s\\d+"},
+	Tag{"Arto", "Art.\\s\\d+|Artículo\\s\\d+"},
 }
 
 //InsertLawToDB inserts all parsed law to DB

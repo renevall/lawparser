@@ -18,7 +18,8 @@ type Law struct {
 	Reviewed     bool      `json:"reviewed"`
 	Revision     int       `json:"rev"`
 	Titles       []Title   `json:"titles"`
-	Articles     []Article `json:"titles"`
+	Chapters     []Chapter `json:"chapters"`
+	Articles     []Article `json:"articles"`
 }
 
 //TmpLaw hold basic data to access files
@@ -33,9 +34,16 @@ func (law *Law) AddTitle(title Title) []Title {
 	return law.Titles
 }
 
+//AddChapter adds parsed article data to parsed law object
+//when there is no title
+func (law *Law) AddChapter(chapter Chapter) []Chapter {
+	law.Chapters = append(law.Chapters, chapter)
+	return law.Chapters
+}
+
 //AddArticle adds parsed article data to parsed law object
-//when there is no title or chapter
-func (law *Law) addArticle(article Article) []Article {
+//when there is no title and no chapter
+func (law *Law) AddArticle(article Article) []Article {
 	law.Articles = append(law.Articles, article)
 	return law.Articles
 }
