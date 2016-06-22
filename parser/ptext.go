@@ -199,7 +199,7 @@ func jsonFormat(stack *Stack) *models.Law {
 
 var tags = Tags{
 	Tag{"Titulo", "TÍTULO"},
-	Tag{"Capitulo", "Capí?tulo\\s|Capitulo\\s"},
+	Tag{"Capitulo", "Capí?tulo\\s|Capitulo\\s|CAPÍ?TULO\\s"},
 	// Tag{"Artículo", "Artículo\\s\\d+"},
 	Tag{"Arto", "Art.\\s\\d+|Artículo\\s\\d+"},
 }
