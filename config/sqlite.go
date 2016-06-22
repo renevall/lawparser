@@ -35,6 +35,6 @@ var InitSqls = []string{
 	'journal'	TEXT,
 	'intro'	TEXT,
 	'reviewed' INTEGER,
-	'rev' INTEGER
+	'revision' INTEGER
 );`,
 }

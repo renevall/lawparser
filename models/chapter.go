@@ -12,7 +12,8 @@ type Chapter struct {
 	Name     string    `json:"name"`
 	Articles []Article `json:"articles"`
 	TitleID  int64     `json:"titleID"`
-	reviewed bool      `json:"reviewed"`
+	LawID    int64     `json:"lawID"`
+	Reviewed bool      `json:"reviewed"`
 }
 
 //AddArticle adds parsed article data to parsed law object
@@ -23,8 +24,8 @@ func (c *Chapter) AddArticle(article Article) []Article {
 
 //CreateChapter Adds a Chapter to the DB
 func (c *Chapter) CreateChapter(db *sqlx.DB) (int64, error) {
-	q := "INSERT INTO Chapter(name,title_id) VALUES($1,$2)"
-	result, err := db.Exec(q, c.Name, c.TitleID)
+	q := "INSERT INTO Chapter(name,title_id,law_id, reviewed) VALUES($1,$2,$3,$4)"
+	result, err := db.Exec(q, c.Name, c.TitleID, c.LawID, c.Reviewed)
 	if err != nil {
 		log.Println(err)
 		return 0, err
@@ -39,7 +40,7 @@ func (c *Chapter) CreateChapter(db *sqlx.DB) (int64, error) {
 
 //GetChapters read all Chapters from DB
 func (c *Chapter) GetChapters(db *sqlx.DB) ([]Chapter, error) {
-	q := "SELECT ID,name, title_id FROM Chapters"
+	q := "SELECT ID,name, title_id,law_id, reviewed FROM Chapters"
 	rows, err := db.Query(q)
 	defer rows.Close()
 	if err != nil {
@@ -49,7 +50,7 @@ func (c *Chapter) GetChapters(db *sqlx.DB) ([]Chapter, error) {
 
 	var chapters []Chapter
 	for rows.Next() {
-		if err := rows.Scan(&c.ID, &c.Name, &c.TitleID); err != nil {
+		if err := rows.Scan(&c.ID, &c.Name, &c.TitleID, &c.LawID, &c.Reviewed); err != nil {
 			log.Println(err)
 			return nil, err
 		}
