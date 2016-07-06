@@ -33,7 +33,10 @@ func OpenTextFile(uri string) []string {
 }
 
 func ParseText(uri string) *models.Law {
+	datatime := time.Now()
 	data := OpenTextFile(uri)
+	elapseddata := time.Since(datatime)
+	log.Println("reading file took: ", elapseddata)
 	ref, order := FindTags(data)
 	parsed_law := MakeLaw2(data, order, ref)
 	json_law := jsonFormat(parsed_law)
@@ -196,9 +199,9 @@ func jsonFormat(stack *Stack) *models.Law {
 
 var tags = Tags{
 	Tag{"Titulo", "TÍTULO"},
-	Tag{"Capitulo", "Capí?tulo\\s|Capitulo\\s"},
-	Tag{"Artículo", "Artículo\\s\\d+"},
-	Tag{"Arto", "Art.\\s\\d+"},
+	Tag{"Capitulo", "Capí?tulo\\s|Capitulo\\s|CAPÍ?TULO\\s"},
+	// Tag{"Artículo", "Artículo\\s\\d+"},
+	Tag{"Arto", "Art.\\s\\d+|Artículo\\s\\d+"},
 }
 
 //InsertLawToDB inserts all parsed law to DB
@@ -240,7 +243,7 @@ func InsertLawToDB(db *sqlx.DB, law *models.Law) error {
 
 		}
 	}
-	elapsed :=  time.Since(start)
+	elapsed := time.Since(start)
 	log.Println("Inserting data to db took: ", elapsed)
 	return nil
 }

@@ -12,6 +12,7 @@ type Title struct {
 	Name     string    `json:"name"`
 	Chapters []Chapter `json:"chapters"`
 	LawID    int64     `json:"lawID"`
+	Reviewed bool      `json:"reviewed"`
 }
 
 //AddChapter adds parsed chapter data to parsed law object
@@ -22,7 +23,7 @@ func (t *Title) AddChapter(chapter Chapter) []Chapter {
 
 //CreateTitle Adds a Chapter to the DB
 func (t *Title) CreateTitle(db *sqlx.DB) (int64, error) {
-	q := "INSERT INTO Title(name,law_id) VALUES($1,$2)"
+	q := "INSERT INTO Title(name,law_id,reviewed) VALUES($1,$2,$3)"
 	result, err := db.Exec(q, t.Name, t.LawID)
 	if err != nil {
 		log.Println(err)
@@ -38,7 +39,7 @@ func (t *Title) CreateTitle(db *sqlx.DB) (int64, error) {
 
 //GetTitles read all Titles from DB
 func (t *Title) GetTitles(db *sqlx.DB) ([]Title, error) {
-	q := "SELECT ID,name, law_id FROM Title"
+	q := "SELECT ID,name, law_id, reviewed FROM Title"
 	rows, err := db.Query(q)
 	defer rows.Close()
 	if err != nil {
@@ -48,7 +49,7 @@ func (t *Title) GetTitles(db *sqlx.DB) ([]Title, error) {
 
 	var titles []Title
 	for rows.Next() {
-		if err := rows.Scan(&t.ID, &t.Name, &t.LawID); err != nil {
+		if err := rows.Scan(&t.ID, &t.Name, &t.LawID, &t.Reviewed); err != nil {
 			log.Println(err)
 			return nil, err
 		}

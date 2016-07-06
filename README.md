@@ -34,4 +34,5 @@ This README would normally document whatever steps are necessary to get your app
 
 ```
     curl -i -F uploads[]=@*(PWD)/test3.txt http://localhost:8080/upload
+    curl -i -F uploads[]=@/Users/reneval/Development/Go/src/bitbucket.org/reneval/lawparser/testlaws/test3.txt http://localhost:8080/api/concurrent
 ```
