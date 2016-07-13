@@ -302,3 +302,10 @@ func ReadTMPLaw() httprouter.Handle {
 
 	}
 }
+
+func notImplemented() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		w.Write([]byte("Not Implemented"))
+
+	}
+}

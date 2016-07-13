@@ -33,3 +33,7 @@ func (r *Response) Wrap(s string, d interface{}) {
 	r.Status = s
 	r.Data = d
 }
+
+func JSON() {
+
+}
