@@ -300,6 +300,12 @@ func jsonFormat2(stack *Stack, mLaw *models.Law) *models.Law {
 
 			//if law has titles
 			if hasTitle {
+				//case it has title but no chapter
+				if currentChapter == -1 {
+					element := models.Chapter{Name: "No Title"}
+					mLaw.Titles[currentTitle].Chapters = mLaw.Titles[currentTitle].AddChapter(element)
+					currentChapter++
+				}
 				//if it has titles and Chapters
 				if hasChapter {
 					fmt.Println("Adding Article under Title: ", currentTitle,
@@ -367,5 +373,5 @@ var intro = Tags{
 	Tag{"Number", "No\\."},
 	Tag{"Aproved", "Aprobada"},
 	Tag{"Diary", "Publicada"},
-	Tag{"Arto", "Art\\.\\s\\d+|Artículo\\s\\d+"},
+	Tag{"Arto", "Art\\.\\s\\d+"},
 }
