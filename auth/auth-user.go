@@ -1,12 +1,15 @@
-package models
+package auth
 
-import "time"
+import (
+	"time"
 
-//AuthenticatedUser hold the data once a user is signed
+	jwt "github.com/dgrijalva/jwt-go"
+)
+
+//AuthUser hold the data once a user is signed
 type AuthUser struct {
 	ID        int       `json:"id"`
-	UserName string `json:"user_name"`
-
+	UserName  string    `json:"user_name"`
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
 	Status    string    `json:"status"`
@@ -18,5 +21,5 @@ type AuthUser struct {
 	Gender    string    `json:"gender"`
 	PicURL    string    `json:"pic_url"`
 
-	jwt.StandardClaims
+	Claim jwt.StandardClaims
 }

@@ -5,6 +5,7 @@ import (
 
 	"net/http"
 
+	"bitbucket.org/reneval/lawparser/auth"
 	"bitbucket.org/reneval/lawparser/db"
 	"bitbucket.org/reneval/lawparser/handlers"
 	// "bitbucket.org/reneval/lawparser/parser"
@@ -47,6 +48,8 @@ func main() {
 
 	//Article
 	r.GET("/api/articles", handlers.GetAllArticles(db))
+
+	r.POST("/api/setToken", auth.setToken())
 
 	n := negroni.New(
 		negroni.NewRecovery(),
