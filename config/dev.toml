@@ -1,0 +1,14 @@
+[owner]
+name="Rene Vallecillo"
+twitter="reneval"
+
+[db]
+host="localhost"
+port="3306"
+user="dummy"
+pass=""
+name="penshiru"
+
+[keys]
+crypt="p5171rC26K0E347wdZhAT95uqwPi180A"
+token="TI0IvtgPN5RRqnIjgtkxg58BFxvS5wRa1gpAZhXwCb7j3AGKuIA3W1JMVogoR2G" #Not for use in production

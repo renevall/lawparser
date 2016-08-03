@@ -1,5 +1,8 @@
 package response
 
+import "encoding/json"
+import "net/http"
+
 const (
 	StatusSuccess = "success"
 	StatusError   = "error"
@@ -34,6 +37,7 @@ func (r *Response) Wrap(s string, d interface{}) {
 	r.Data = d
 }
 
-func JSON() {
-
+//Respond sends a json Response back to client
+func (e *Error) Respond(w http.ResponseWriter) {
+	json.NewEncoder(w).Encode(e)
 }

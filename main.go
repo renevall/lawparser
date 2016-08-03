@@ -49,7 +49,9 @@ func main() {
 	//Article
 	r.GET("/api/articles", handlers.GetAllArticles(db))
 
-	r.POST("/api/setToken", auth.setToken())
+	r.POST("/api/login", auth.LogIn(db))
+
+	//r.POST("/api/setToken", auth.setToken())
 
 	n := negroni.New(
 		negroni.NewRecovery(),
