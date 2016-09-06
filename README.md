@@ -1,38 +1,37 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+# Law Parser
 
-### What is this repository for? ###
+The following repo attemps to show a golang file parser. Following
+parser basics, the code looks for tags of interest, and joing them
+in a Linked List structure, to be used later to extract the content
+of interest. If you look for a much mature parser, take a look at:
+(https://github.com/dotabuff/sange)[https://github.com/dotabuff/sange] 
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+This does not intend to showcase the best posible route to parse a
+text file, but my attemp to learn golang basics.
 
-### How do I get set up? ###
+I started learning golang because I became obsessed with performance
+and scalability.
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+# Requeriments
 
-### Contribution guidelines ###
+As of Sept 5, 2016 I'm using:
++ Golang 1.6
++ Migrating from Sqlite3 to Postgres 9.5
++ Docker to run my postgres Instance
++ Migrating to Goose to better handle db versions
 
-* Writing tests
-* Code review
-* Other guidelines
+# Reminders
 
-### Who do I talk to? ###
+The following are commands I should remember to start my dev enviroment
 
-* Repo owner or admin
-* Other community or team contact
+To Start Docker Container
 
-### Testing
+    docker-compose up -d --build
 
-*CURl
+To stop
 
-```
-    curl -i -F uploads[]=@*(PWD)/test3.txt http://localhost:8080/upload
-    curl -i -F uploads[]=@/Users/reneval/Development/Go/src/bitbucket.org/reneval/lawparser/testlaws/test3.txt http://localhost:8080/api/concurrent
-```
+    docker-compose down
+
+
