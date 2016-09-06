@@ -34,4 +34,10 @@ To stop
 
     docker-compose down
 
+To run psql on the docker Instance
 
+    docker run -it --rm --link some-postgres:postgres postgres psql -h postgres -U postgres
+
+The params depends on the docker-compose config. That would turn to:
+
+    docker run -it --rm --link docker_db_1:postgres --net docker_default postgres psql -h postgres -U devUser -d PenshiruDev

@@ -1,0 +1,26 @@
+
+CREATE TABLE 'Article' (
+	'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	'name'	TEXT NOT NULL,
+	'text'  TEXT NOT NULL,
+	'chapter_id'	INTEGER NOT NULL
+);
+CREATE TABLE 'Chapter' (
+	'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	'name'	INTEGER NOT NULL,
+	'title_id'	INTEGER NOT NULL
+);
+CREATE TABLE "Title" (
+	'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	'name'	TEXT,
+	'law_id'	INTEGER
+);
+CREATE TABLE "Law" (
+	'id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	'name'	TEXT NOT NULL,
+	'approval_date'	TEXT NOT NULL,
+	'publish_date'	TEXT NOT NULL,
+	'journal'	TEXT,
+	'intro'	Text
+);
+
