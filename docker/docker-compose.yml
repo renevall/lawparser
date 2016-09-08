@@ -1,7 +1,7 @@
 version: '2'
 services:
     db:
-        image: postgres:latest
+        build: ./postgres
         environment:
             - POSTGRES_PASSWORD=DevPass123
             - POSTGRES_USER=Penshiru
