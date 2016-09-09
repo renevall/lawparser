@@ -11,8 +11,8 @@ import (
 type Law struct {
 	ID           int       `json:"id"`
 	Name         string    `json:"name"`
-	ApprovalDate string    `json:"approvalDate"`
-	PublishDate  string    `json:"publishDate"`
+	ApprovalDate time.Time `json:"approvalDate"`
+	PublishDate  time.Time `json:"publishDate"`
 	Journal      string    `json:"journal"`
 	Intro        string    `json:"intro"`
 	Reviewed     bool      `json:"reviewed"`
@@ -55,7 +55,7 @@ func (law *Law) CreateLaw(db *sqlx.DB) (int64, error) {
 		VALUES($1,$2,$3,$4,$5,$6,$7)`
 
 	//TODO Parse Date from txt file
-	law.PublishDate = time.Now().String()
+	law.PublishDate = time.Now()
 	law.ApprovalDate = law.PublishDate
 	result, err := db.Exec(q, law.Name, law.ApprovalDate, law.PublishDate,
 		law.Journal, law.Intro, law.Reviewed, law.Revision)
@@ -77,7 +77,7 @@ func (law *Law) CreateLaw(db *sqlx.DB) (int64, error) {
 //GetLaws read all laws from DB
 func (law *Law) GetLaws(db *sqlx.DB) ([]Law, error) {
 	q := `SELECT 
-	ID,name,approval_date,publish_date,journal,intro, reviewed, revision
+	law_id,name,approval_date,publish_date,journal,intro, reviewed, revision
 	FROM Law`
 	rows, err := db.Query(q)
 	defer rows.Close()
@@ -100,8 +100,8 @@ func (law *Law) GetLaws(db *sqlx.DB) ([]Law, error) {
 
 //GetFullLaw return a mapped law object with all the other associations
 func (law *Law) GetFullLaw(db *sqlx.DB, id int) error {
-	q := `SELECT ID,name,approval_date,publish_date,journal,intro, reviewed, revision
-	FROM Law WHERE id=?`
+	q := `SELECT law_id,name,approval_date,publish_date,journal,intro, reviewed, revision
+	FROM Law WHERE law_id=?`
 	err := db.QueryRow(q, id).Scan(&law.ID, &law.Name, &law.ApprovalDate, &law.PublishDate,
 		&law.Journal, &law.Intro, &law.Reviewed, &law.Revision)
 	if err != nil {
@@ -110,7 +110,7 @@ func (law *Law) GetFullLaw(db *sqlx.DB, id int) error {
 	}
 
 	//titles
-	q = "SELECT ID,name, law_id, reviewed FROM Title WHERE law_id=?"
+	q = "SELECT title_id,name, law_id, reviewed FROM Title WHERE law_id=?"
 	rows, err := db.Query(q, law.ID)
 	if err != nil {
 		log.Println(err)
@@ -129,7 +129,7 @@ func (law *Law) GetFullLaw(db *sqlx.DB, id int) error {
 	}
 
 	//chapters
-	q = "SELECT ID,name, title_id, law_id, reviewed FROM Chapter WHERE title_id IN (?)"
+	q = "SELECT chapter_id,name, title_id, law_id, reviewed FROM Chapter WHERE title_id IN (?)"
 	var chapters []Chapter
 	var chapterIDs []int
 	query, args, err := sqlx.In(q, TitleIDs)
@@ -149,7 +149,7 @@ func (law *Law) GetFullLaw(db *sqlx.DB, id int) error {
 		chapterIDs = append(chapterIDs, c.ID)
 	}
 	//articles
-	q = `SELECT ID,name, text, chapter_id, law_id, reviewed 
+	q = `SELECT article_id,name, text, chapter_id, law_id, reviewed 
 	FROM Article WHERE chapter_id in (?)`
 	var articles []Article
 	query, args, err = sqlx.In(q, chapterIDs)

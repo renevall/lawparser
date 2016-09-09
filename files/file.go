@@ -2,12 +2,14 @@
 package files
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path"
 
 	"bitbucket.org/reneval/lawparser/models"
 
@@ -72,4 +74,30 @@ func ListDirFiles(uri string) ([]models.TmpLaw, error) {
 	}
 
 	return filelist, nil
+}
+
+//LoadJSONLaw parses json file into a law object given a name.
+//Uses Config File for folder path
+func LoadJSONLaw(name string) (*models.Law, error) {
+
+	if name == "" {
+		return nil, errors.Wrap(errors.New("Expected Param"), "Param name not set")
+	}
+
+	//TODO: use config file
+	path := path.Join("./parsed_laws", name)
+	file, err := OpenFile(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "file open failed")
+	}
+	law := new(models.Law)
+
+	//TODO: Review if it is posible to not unmarshall and send json from file
+	//10ms diference so far
+	err = json.Unmarshal(file, law)
+	if err != nil {
+		return nil, errors.Wrap(err, "parsing to law failed")
+	}
+
+	return law, nil
 }

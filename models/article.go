@@ -37,7 +37,7 @@ func (a *Article) CreateArticle(db *sqlx.DB, tx *sqlx.Tx) error {
 
 //GetArticles read all articles from DB
 func (a *Article) GetArticles(db *sqlx.DB) ([]Article, error) {
-	q := "SELECT ID,name,text,chapter_id,law_id,reviewed` FROM Article"
+	q := "SELECT article_id,name,text,chapter_id,law_id,reviewed` FROM Article"
 	rows, err := db.Query(q)
 	defer rows.Close()
 	if err != nil {

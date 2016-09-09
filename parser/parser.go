@@ -186,7 +186,8 @@ func fillBasicData(tag string, value string, law *models.Law) {
 		law.Name = value
 		break
 	case "Aproved":
-		law.ApprovalDate = value
+		// TODO: parse date, using now for db test
+		law.ApprovalDate = time.Now()
 		break
 
 	case "Diary":

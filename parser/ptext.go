@@ -9,8 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jmoiron/sqlx"
-
 	"bitbucket.org/reneval/lawparser/models"
 )
 
@@ -202,48 +200,4 @@ var tags = Tags{
 	Tag{"Capitulo", "Capí?tulo\\s|Capitulo\\s|CAPÍ?TULO\\s"},
 	// Tag{"Artículo", "Artículo\\s\\d+"},
 	Tag{"Arto", "Art.\\s\\d+|Artículo\\s\\d+"},
-}
-
-//InsertLawToDB inserts all parsed law to DB
-func InsertLawToDB(db *sqlx.DB, law *models.Law) error {
-	start := time.Now()
-	lawID, err := law.CreateLaw(db)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	for _, title := range law.Titles {
-		title.LawID = lawID
-		titleID, err := title.CreateTitle(db)
-		if err != nil {
-			log.Println(err)
-			return nil
-		}
-		for _, chapter := range title.Chapters {
-			chapter.TitleID = titleID
-			chapterID, err := chapter.CreateChapter(db)
-			if err != nil {
-				log.Println(err)
-				return nil
-			}
-
-			tx, err := db.Beginx()
-			if err != nil {
-				log.Fatal(err)
-			}
-			for _, article := range chapter.Articles {
-				article.ChapterID = chapterID
-				err := article.CreateArticle(db, tx)
-				if err != nil {
-					log.Println(err)
-					return nil
-				}
-			}
-			tx.Commit()
-
-		}
-	}
-	elapsed := time.Since(start)
-	log.Println("Inserting data to db took: ", elapsed)
-	return nil
 }
