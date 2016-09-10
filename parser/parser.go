@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/goodsign/monday"
+
 	"bitbucket.org/reneval/lawparser/models"
 )
 
@@ -143,22 +145,25 @@ func FindBasicData(done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) *
 		for text := range in {
 			for _, tag := range intro {
 				r, _ := regexp.Compile(tag.regex)
+				matches := make(map[int]*regexp.Regexp)
+				matches[0], _ = regexp.Compile("(\\d{1,2}\\s(de|del))\\s\\w+\\s+(del|de)\\s\\d+")
+				matches[1], _ = regexp.Compile("\\sdel|\\sde")
 				if r.MatchString(text) {
 					switch tag.name {
 					case "Name":
-						fillBasicData(tag.name, text, law)
+						fillBasicData(tag.name, text, law, matches)
 						break
 
 					case "Number":
-						fillBasicData(tag.name, text, law)
+						fillBasicData(tag.name, text, law, matches)
 						break
 
 					case "Aproved":
-						fillBasicData(tag.name, text, law)
+						fillBasicData(tag.name, text, law, matches)
 						break
 
 					case "Diary":
-						fillBasicData(tag.name, text, law)
+						fillBasicData(tag.name, text, law, matches)
 						break
 
 					case "Arto":
@@ -177,7 +182,8 @@ func FindBasicData(done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) *
 	return law
 }
 
-func fillBasicData(tag string, value string, law *models.Law) {
+func fillBasicData(tag string, value string, law *models.Law, matches map[int]*regexp.Regexp) {
+
 	switch tag {
 	case "Name":
 		law.Name = value
@@ -187,7 +193,14 @@ func fillBasicData(tag string, value string, law *models.Law) {
 		break
 	case "Aproved":
 		// TODO: parse date, using now for db test
-		law.ApprovalDate = time.Now()
+		location, _ := time.LoadLocation("")
+		data := matches[0].FindString(value)
+		fmt.Println("Date match found", data)
+
+		data = matches[1].ReplaceAllString(data, "")
+		//law.ApprovalDate =
+		date, _ := monday.ParseInLocation("02 January 2006", data, location, monday.LocaleEsES)
+		law.ApprovalDate = date
 		break
 
 	case "Diary":
