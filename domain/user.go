@@ -18,10 +18,10 @@ type User struct {
 	Token    string `json:"token"`
 }
 
-//UserRepository interface to be persisted/retrieved
-type UserRepository interface {
+//UserStore interface to persist data
+type UserStore interface {
 	//Save(user User)
-	FindByID(id uint32) (*User, error)
+	FindByID(id uint64) (*User, error)
 	FindByEmail(email string) (*User, error)
 	FindAll() ([]*User, error)
 }

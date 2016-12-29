@@ -8,7 +8,7 @@ type Customer struct {
 }
 
 //CustomerRepository interface to be persisted/retrieved
-type CustomerRepository interface {
+type CustomerStore interface {
 	Save(customer Customer)
 	Find(id int) *Customer
 }
