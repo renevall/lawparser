@@ -40,7 +40,7 @@ func (c *Chapter) CreateChapter(db *sqlx.DB) (int64, error) {
 
 //GetChapters read all Chapters from DB
 func (c *Chapter) GetChapters(db *sqlx.DB) ([]Chapter, error) {
-	q := "SELECT ID,name, title_id,law_id, reviewed FROM Chapters"
+	q := "SELECT chapter_id,name, title_id,law_id, reviewed FROM Chapters"
 	rows, err := db.Query(q)
 	defer rows.Close()
 	if err != nil {

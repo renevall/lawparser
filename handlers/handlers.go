@@ -7,12 +7,12 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	// "github.com/gorilla/mux"
 	"net/http"
 
+	"bitbucket.org/reneval/lawparser/database"
 	"bitbucket.org/reneval/lawparser/files"
 	"bitbucket.org/reneval/lawparser/models"
 	"bitbucket.org/reneval/lawparser/parser"
@@ -20,8 +20,9 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
-	"github.com/pkg/errors"
 )
+
+//TODO: get rid of this stucture, response and response2
 
 type Response struct {
 	err  string
@@ -34,10 +35,12 @@ type Response2 struct {
 	generatedName string
 }
 
+//Index responds to an index request
 func Index(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	fmt.Fprint(w, "Welcome!\n")
 }
 
+//ParseShow tries to show the result of a parsed law. (DEPRECATED)
 func ParseShow(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	law := parser.ParseText("testlaws/test3.txt")
@@ -50,6 +53,8 @@ func ParseShow(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 }
 
+// GetAllArticles show all articles
+// TODO: Make it work so it need a law id
 func GetAllArticles(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		var article models.Article
@@ -69,6 +74,7 @@ func GetAllArticles(db *sqlx.DB) httprouter.Handle {
 
 }
 
+// GetFullLawJSON shows a fully parsed law out of db
 func GetFullLawJSON(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		var law models.Law
@@ -129,7 +135,8 @@ func GetLawsJSON(db *sqlx.DB) httprouter.Handle {
 	}
 }
 
-//TODO: MAKE SAVE FROM JSON FILE
+// FileUpload function to uoload a law (DEPRECATED)
+// TODO: MAKE SAVE FROM JSON FILE
 func FileUpload(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		// w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -168,7 +175,7 @@ func FileUpload(db *sqlx.DB) httprouter.Handle {
 		// json.NewEncoder(w).Encode(Response2{true, handler.Filename + "Server", handler.Filename})
 
 		law := parser.ParseText("testlaws/" + handler.Filename)
-		inserted := parser.InsertLawToDB(db, law)
+		inserted := database.InsertLawToDB(db, law)
 		if inserted != nil {
 			panic(inserted)
 		}
@@ -187,7 +194,7 @@ func ParseLawFile(db *sqlx.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		// w.Header().Set("Access-Control-Allow-Origin", "*")
 
-		//TODO use path from config file
+		//TODO: use path from config file
 		dir := "./parsed_laws/"
 
 		log.Println("METHOD IS " + r.Method + " AND CONTENT-TYPE IS " + r.Header.Get("Content-Type"))
@@ -252,7 +259,7 @@ func ParseLawFile(db *sqlx.DB) httprouter.Handle {
 			}
 		}
 
-		//TODO SavetoJson instead of priting to screen
+		//TODO: SavetoJson instead of priting to screen
 		if err := json.NewEncoder(w).Encode(res); err != nil {
 			panic(err)
 
@@ -261,24 +268,12 @@ func ParseLawFile(db *sqlx.DB) httprouter.Handle {
 	}
 }
 
-//TODO READ FROM TEMP LAW
-
+// ReadTMPLaw Reads a TMP Law (Flat file)  and renders it as JSON to be consumed
 func ReadTMPLaw() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		name := p.ByName("name")
-		if name == "" {
-			res := response.Error{}
+		law, err := files.LoadJSONLaw(name)
 
-			err := errors.Wrap(errors.New("Expected Param"), "Param name not present")
-			res.Wrap(response.StatusError, err.Error())
-
-			if err := json.NewEncoder(w).Encode(res); err != nil {
-				panic(err)
-			}
-		}
-
-		path := path.Join("./parsed_laws", name)
-		file, err := files.OpenFile(path)
 		if err != nil {
 			res := response.Error{}
 			res.Wrap(response.StatusError, err.Error())
@@ -287,11 +282,6 @@ func ReadTMPLaw() httprouter.Handle {
 			}
 			return
 		}
-		law := new(models.Law)
-
-		//TODO Review if it is posible to not unmarshall and send json from file
-		//10ms diference so far
-		json.Unmarshal(file, law)
 
 		res := response.Response{}
 		res.Wrap(response.StatusSuccess, law)
@@ -299,6 +289,13 @@ func ReadTMPLaw() httprouter.Handle {
 		if err := json.NewEncoder(w).Encode(res); err != nil {
 			panic(err)
 		}
+
+	}
+}
+
+func notImplemented() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		w.Write([]byte("Not Implemented"))
 
 	}
 }

@@ -1,0 +1,22 @@
+version: '2'
+services:
+    db:
+        build: ./postgres
+        environment:
+            - POSTGRES_PASSWORD=DevPass123
+            - POSTGRES_USER=Penshiru
+            - POSTGRES_DB=Penshiru_Dev
+        ports:
+            - "5432:5432"
+    go:
+        build: .
+        environment:
+            - POSTGRES_DB_HOST=db
+            - POSTGRES_DB_PORT=5432
+            - POSTGRES_DB_PASSWORD=DevPass123
+            - POSTGRES_DB_USER=Penshiru
+            - POSTGRES_DB=Penshiru_Dev
+        ports:
+            - "8080"
+        depends_on:
+            - db
