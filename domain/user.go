@@ -2,7 +2,7 @@ package domain
 
 //User Entity
 type User struct {
-	ID            uint32 `db:"user_id" json:"id"` // Don't use Id, use UserID() instead for consistency with MongoDB
+	ID            uint64 `db:"user_id" json:"id"` // Don't use Id, use UserID() instead for consistency with MongoDB
 	FirstName     string `db:"first_name" json:"first_name"`
 	LastName      string `db:"last_name" json:"last_name"`
 	Email         string `db:"email" json:"email"`
@@ -24,4 +24,9 @@ type UserStore interface {
 	FindByID(id uint64) (*User, error)
 	FindByEmail(email string) (*User, error)
 	FindAll() ([]*User, error)
+}
+
+//Authorizer interface to login user
+type Authorizer interface {
+	Login(email, pass string) (*User, error)
 }

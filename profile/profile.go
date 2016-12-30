@@ -6,13 +6,13 @@ import (
 
 //Domain holds reference to the domain struct
 type Domain struct {
-	UserRepository domain.UserRepository
+	service domain.UserStore
 }
 
 //Profile loads the user required to render frontend
-func (d Domain) Profile(id uint32) (*domain.User, error) {
+func (d Domain) Profile(id uint64) (*domain.User, error) {
 	var user *domain.User
-	user, err := d.UserRepository.FindByID(id)
+	user, err := d.service.FindByID(id)
 	if err != nil {
 		return nil, err
 	}

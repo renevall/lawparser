@@ -26,8 +26,12 @@ func InitRouter(env *domain.Env) *gin.Engine {
 		ValidateHeaders: false,
 	}))
 
+	//TODO: Use Groups
 	profile := &Profile{service: env.User}
 	router.GET("/profile/:id", profile.ProfileHandler)
+
+	auth := &RequestAuth{Service: env.Auth}
+	router.POST("/login", auth.AuthHandler)
 
 	return router
 }
@@ -37,3 +41,13 @@ func NotImplemented(c *gin.Context) {
 	content := gin.H{"Response": "Not Implemented"}
 	c.JSON(http.StatusOK, content)
 }
+
+// NOTES
+
+// Originally we would wire up the dependencies on this file,
+// but it felt out of place, and we were going against the decoupling
+// flow. Ideally we would wire up things on the main. We came up
+// with and Env structure defined at the domain level, where we would
+// set the dependencies as member, the we pass it to the router package
+// where we prepare our handlers with our requires dependencies. This way
+// so far makes it so router has no coupling with the data layer.

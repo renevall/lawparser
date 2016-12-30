@@ -13,6 +13,7 @@ import (
 // 	Load(id string) (*domain.User, error)
 // }
 
+//ProfileRetriever reads a Profile via db package
 type ProfileRetriever interface {
 	FindByID(id uint64) (*domain.User, error)
 }
@@ -23,6 +24,7 @@ type Profile struct {
 }
 
 //New Returns a User Profile
+//TODO: Check if this is needed
 func New(p ProfileRetriever) *Profile {
 	return &Profile{
 		service: p,

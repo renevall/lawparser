@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"bitbucket.org/reneval/lawparser/auth"
 	"bitbucket.org/reneval/lawparser/domain"
 	db "bitbucket.org/reneval/lawparser/postgres"
 	"bitbucket.org/reneval/lawparser/router"
@@ -17,9 +18,13 @@ func main() {
 	}
 	defer dataB.Close()
 
+	//profile
 	user := &db.User{dataB}
-
 	env := &domain.Env{User: user}
+
+	//auth
+	auth := &auth.AuthService{Service: user}
+	env.Auth = auth
 
 	router := router.InitRouter(env)
 	router.Run(":8080")
