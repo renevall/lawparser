@@ -15,6 +15,7 @@ import (
 
 type Claims struct {
 	Username string `json:"username"`
+
 	// recommended having
 	jwt.StandardClaims
 }
@@ -75,10 +76,7 @@ func GenerateToken(user domain.User) string {
 }
 
 //JWTAuthorize checks if token in header is valid
-func (auth *AuthService) JWTAuthorize(r *http.Request) (
-	interface {
-		Valid() error
-	}, error) {
+func (auth *AuthService) JWTAuthorize(r *http.Request) (domain.ClaimerVerifier, error) {
 	token, err := request.ParseFromRequestWithClaims(
 		r,
 		request.AuthorizationHeaderExtractor,

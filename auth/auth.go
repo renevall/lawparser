@@ -8,19 +8,19 @@ import (
 
 //AuthService helps with dependency injection and decoupling
 type AuthService struct {
-	Service domain.UserStore
+	UserReader domain.UserStore
 }
 
 //Login logs the user
 func (auth *AuthService) Login(email, pass string) (*domain.User, error) {
 	var authUser *domain.User
-	user, err := auth.Service.FindByEmail(email)
+	user, err := auth.UserReader.FindByEmail(email)
 	if err != nil {
 		return nil, err
 	}
 
 	if CompareHash(pass, user.Password) {
-		authUser, err = auth.Service.FindByID(user.ID)
+		authUser, err = auth.UserReader.FindByID(user.ID)
 		if err != nil {
 			return nil, err
 		}

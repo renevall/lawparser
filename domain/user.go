@@ -26,7 +26,7 @@ type UserStore interface {
 	FindAll() ([]*User, error)
 }
 
-//Authorizer interface to login user
-type Authorizer interface {
+//LoginReader interface to login user
+type LoginReader interface {
 	Login(email, pass string) (*User, error)
 }

@@ -23,8 +23,9 @@ func main() {
 	env := &domain.Env{User: user}
 
 	//auth
-	auth := &auth.AuthService{Service: user}
-	env.Auth = auth
+	reader := &auth.AuthService{UserReader: user}
+	env.LoginReader = reader
+	env.Authorizer = reader
 
 	router := router.InitRouter(env)
 	router.Run(":8080")

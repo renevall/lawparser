@@ -30,8 +30,13 @@ func InitRouter(env *domain.Env) *gin.Engine {
 	profile := &Profile{service: env.User}
 	router.GET("/profile/:id", profile.ProfileHandler)
 
-	auth := &RequestAuth{Service: env.Auth}
+	auth := &RequestAuth{LoginReader: env.LoginReader, Authorizer: env.Authorizer}
 	router.POST("/login", auth.AuthHandler)
+
+	test := router.Group("/test", auth.TokenAuthMiddleware())
+	{
+		test.GET("/logout", NotImplemented)
+	}
 
 	return router
 }
