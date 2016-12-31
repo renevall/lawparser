@@ -38,8 +38,11 @@ func InitRouter(env *domain.Env) *gin.Engine {
 		test.GET("/logout", NotImplemented)
 	}
 
-	law := &File{}
-	router.POST("/api/laws", law.LawParseHandler)
+	file := &File{}
+	router.POST("/api/laws", file.LawParseHandler)
+
+	law := &Law{}
+	router.GET("/api/tmp/laws", law.GetLawsTmp)
 
 	return router
 }
