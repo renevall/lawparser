@@ -27,6 +27,10 @@ func main() {
 	env.LoginReader = reader
 	env.Authorizer = reader
 
+	//law
+	law := &db.Law{dataB}
+	env.Law = law
+
 	router := router.InitRouter(env)
 	router.Run(":8080")
 

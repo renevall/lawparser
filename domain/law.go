@@ -16,6 +16,10 @@ type Law struct {
 	Articles     []Article `json:"articles"`
 }
 
+type LawStore interface {
+	GetLaws() ([]Law, error)
+}
+
 //AddTitle adds parsed title data to parsed law object
 func (law *Law) AddTitle(title Title) []Title {
 	law.Titles = append(law.Titles, title)

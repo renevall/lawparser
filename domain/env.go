@@ -7,6 +7,7 @@ type Env struct {
 	User        UserStore
 	LoginReader LoginReader
 	Authorizer  JWTAuthorizer
+	Law         LawStore
 }
 
 type ClaimerVerifier interface {
