@@ -24,7 +24,7 @@ func (l *Law) GetLawsTMP(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 	}
 
-	c.JSON(http.StatusOK, laws)
+	c.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "data": laws})
 }
 
 //GetLawsJSON responds with all laws from db
@@ -34,6 +34,12 @@ func (l *Law) GetLawsJSON(c *gin.Context) {
 	laws, err := l.Reader.GetLaws()
 	if err != nil {
 		c.JSON(http.StatusOK, err)
+		return
+	}
+
+	if len(laws) < 1 {
+		c.JSON(http.StatusOK, "")
+		return
 	}
 
 	c.JSON(http.StatusOK, laws)
