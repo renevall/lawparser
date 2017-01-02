@@ -4,10 +4,11 @@ import "net/http"
 
 //Env holds injected instances
 type Env struct {
-	User        UserStore
-	LoginReader LoginReader
-	Authorizer  JWTAuthorizer
-	Law         LawStore
+	User           UserStore
+	LoginReader    LoginReader
+	Authorizer     JWTAuthorizer
+	Law            LawStore
+	JSONFileReader JSONFileReader
 }
 
 type ClaimerVerifier interface {
@@ -16,4 +17,8 @@ type ClaimerVerifier interface {
 
 type JWTAuthorizer interface {
 	JWTAuthorize(r *http.Request) (ClaimerVerifier, error)
+}
+
+type JSONFileReader interface {
+	LoadJSONLaw(name string) (*Law, error)
 }

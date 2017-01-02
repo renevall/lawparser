@@ -41,9 +41,10 @@ func InitRouter(env *domain.Env) *gin.Engine {
 	file := &File{}
 	router.POST("/api/laws", file.LawParseHandler)
 
-	law := &Law{Reader: env.Law}
+	law := &Law{Reader: env.Law, JSONReader: env.JSONFileReader}
 	router.GET("/api/tmp/laws", law.GetLawsTMP)
 	router.GET("/api/laws", law.GetLawsJSON)
+	router.GET("/api/tmp/laws/:name", law.ReadTMPLaw)
 
 	return router
 }

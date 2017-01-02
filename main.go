@@ -5,6 +5,7 @@ import (
 
 	"bitbucket.org/reneval/lawparser/auth"
 	"bitbucket.org/reneval/lawparser/domain"
+	"bitbucket.org/reneval/lawparser/files"
 	db "bitbucket.org/reneval/lawparser/postgres"
 	"bitbucket.org/reneval/lawparser/router"
 	_ "github.com/lib/pq"
@@ -30,6 +31,9 @@ func main() {
 	//law
 	law := &db.Law{dataB}
 	env.Law = law
+
+	fileReader := &files.FileReader{}
+	env.JSONFileReader = fileReader
 
 	router := router.InitRouter(env)
 	router.Run(":8080")

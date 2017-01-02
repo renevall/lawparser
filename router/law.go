@@ -13,8 +13,14 @@ type LawReader interface {
 	GetLaws() ([]domain.Law, error)
 }
 
+//LawReader interface reads Law via file package
+type LawJSONReader interface {
+	LoadJSONLaw(name string) (*domain.Law, error)
+}
+
 type Law struct {
-	Reader LawReader
+	Reader     LawReader
+	JSONReader LawJSONReader
 }
 
 //GetLawsTMP responds with all tmp laws (flat file)
@@ -43,4 +49,17 @@ func (l *Law) GetLawsJSON(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, laws)
+}
+
+// ReadTMPLaw Reads a TMP Law (Flat file)  and renders it as JSON to be consumed
+func (l *Law) ReadTMPLaw(c *gin.Context) {
+	name := c.Param("name")
+	law, err := l.JSONReader.LoadJSONLaw(name)
+
+	if err != nil {
+		c.JSON(http.StatusOK, err)
+	}
+
+	c.JSON(200, gin.H{"code": 200, "data": law})
+
 }
