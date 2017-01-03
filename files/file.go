@@ -90,6 +90,7 @@ func (f *FileReader) LoadJSONLaw(name string) (*domain.Law, error) {
 
 	//TODO: use config file
 	path := path.Join("./parsed_laws", name)
+
 	file, err := OpenFile(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "file open failed")
@@ -102,6 +103,5 @@ func (f *FileReader) LoadJSONLaw(name string) (*domain.Law, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "parsing to law failed")
 	}
-
 	return law, nil
 }

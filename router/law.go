@@ -58,6 +58,7 @@ func (l *Law) ReadTMPLaw(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusOK, err)
+		return
 	}
 
 	c.JSON(200, gin.H{"code": 200, "data": law})

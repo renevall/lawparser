@@ -16,3 +16,5 @@ app
 
 #tmp laws
 parsed_laws/*.json
+
+.DS_Store
