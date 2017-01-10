@@ -29,7 +29,8 @@ func main() {
 	env.Authorizer = reader
 
 	//law
-	law := &db.Law{dataB}
+	newLaw := &domain.Law{}
+	law := &db.Law{dataB, newLaw}
 	env.Law = law
 
 	fileReader := &files.FileReader{}

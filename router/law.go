@@ -9,8 +9,9 @@ import (
 )
 
 //LawReader interface reads Law via db package
-type LawReader interface {
+type LawReaderWriter interface {
 	GetLaws() ([]domain.Law, error)
+	InsertLawDB(*domain.Law) error
 }
 
 //LawReader interface reads Law via file package
@@ -19,8 +20,8 @@ type LawJSONReader interface {
 }
 
 type Law struct {
-	Reader     LawReader
-	JSONReader LawJSONReader
+	ReaderWriter LawReaderWriter
+	JSONReader   LawJSONReader
 }
 
 //GetLawsTMP responds with all tmp laws (flat file)
@@ -37,7 +38,7 @@ func (l *Law) GetLawsTMP(c *gin.Context) {
 func (l *Law) GetLawsJSON(c *gin.Context) {
 	var laws []domain.Law
 
-	laws, err := l.Reader.GetLaws()
+	laws, err := l.ReaderWriter.GetLaws()
 	if err != nil {
 		c.JSON(http.StatusOK, err)
 		return
@@ -62,5 +63,17 @@ func (l *Law) ReadTMPLaw(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"code": 200, "data": law})
+
+}
+
+func (l *Law) SaveLawDB(c *gin.Context) {
+	law := &domain.Law{}
+	err := c.BindJSON(&law)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"code": 200, "error": "Ilegal JSON request"})
+		return
+	}
+	err = l.ReaderWriter.InsertLawDB(law)
+	// fmt.Println(law)
 
 }

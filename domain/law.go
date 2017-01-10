@@ -18,6 +18,8 @@ type Law struct {
 
 type LawStore interface {
 	GetLaws() ([]Law, error)
+	InsertLawDB(law *Law) error
+	CreateLaw() (int64, error)
 }
 
 //AddTitle adds parsed title data to parsed law object
