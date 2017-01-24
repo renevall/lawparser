@@ -141,7 +141,7 @@ func FindBasicData(done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) *
 	t := time.Now()
 	wg.Add(1)
 	go func(*models.Law) {
-		// defer wg.Done()
+		defer wg.Done()
 		for text := range in {
 			for _, tag := range intro {
 				r, _ := regexp.Compile(tag.regex)
@@ -169,7 +169,7 @@ func FindBasicData(done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) *
 					case "Arto":
 						fmt.Println("End of Law Header Reached")
 						done <- struct{}{}
-						wg.Done()
+						// wg.Done()
 						ts := time.Since(t)
 						fmt.Println("FindBasicData", ts)
 						return
