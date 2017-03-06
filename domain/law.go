@@ -11,6 +11,7 @@ type Law struct {
 	Intro        string    `json:"intro"`
 	Reviewed     bool      `json:"reviewed"`
 	Revision     int       `json:"rev"`
+	Books        []Book    `json:"books"`
 	Titles       []Title   `json:"titles"`
 	Chapters     []Chapter `json:"chapters"`
 	Articles     []Article `json:"articles"`
@@ -27,6 +28,13 @@ func (law *Law) AddTitle(title Title) []Title {
 	law.Titles = append(law.Titles, title)
 	return law.Titles
 }
+
+func (law *Law) AddBook(book Book) []Book {
+	law.Books = append(law.Books, book)
+	return law.Books
+}
+
+//AddBook adds parsed Bookdata to law object
 
 //AddChapter adds parsed article data to parsed law object
 //when there is no title
