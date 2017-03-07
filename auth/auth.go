@@ -1,63 +1,41 @@
 package auth
 
 import (
-	"fmt"
-	"net/http"
-	"strings"
+	"errors"
 
-	"bitbucket.org/reneval/lawparser/config"
-	"bitbucket.org/reneval/lawparser/models"
-	"bitbucket.org/reneval/lawparser/response"
-
-	"github.com/jmoiron/sqlx"
-	"github.com/julienschmidt/httprouter"
+	"bitbucket.org/reneval/lawparser/domain"
 )
 
-//LogIn User
-func LogIn(db *sqlx.DB) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		res := response.Error{}
+//AuthService helps with dependency injection and decoupling
+type AuthService struct {
+	UserReader domain.UserStore
+}
 
-		email := r.FormValue("email")
-		password := r.FormValue("password")
-		fmt.Println(email)
+//Login logs the user
+func (auth *AuthService) Login(email, pass string) (*domain.User, error) {
+	var authUser *domain.User
+	user, err := auth.UserReader.FindByEmail(email)
+	if err != nil {
+		return nil, err
+	}
 
-		if strings.TrimSpace(email) == "" {
-			res.Wrap(response.StatusError, "Email can't be empty")
-			res.Respond(w)
-		} else if strings.TrimSpace(password) == "" {
-			res.Wrap(response.StatusError, "Password can't be empty")
-			res.Respond(w)
-		} else {
-			user := new(models.User)
-			err := user.FindByEmail(db, email)
-			if err != nil {
-				res.Wrap(response.StatusError, "Could not contact DB")
-				res.Respond(w)
-			}
-
-			if user.Email == "" {
-				res.Wrap(response.StatusError, "Account not found")
-
-			} else {
-				decryptedPass := decrypt([]byte(config.GetString("keys.crypt")), user.Password)
-				if decryptedPass != password {
-					res.Wrap(response.StatusError, "Account not found")
-					res.Respond(w)
-				} else {
-					res.Wrap(response.StatusSuccess, "Account found!")
-					res.Respond(w)
-				}
-			}
-			//TODO Complete code to check for account
+	if CompareHash(pass, user.Password) {
+		authUser, err = auth.UserReader.FindByID(user.ID)
+		if err != nil {
+			return nil, err
 		}
-
+		authUser.Token = GenerateToken(*authUser)
+	} else {
+		err = errors.New("hash not equal")
+		return nil, err
 	}
+
+	return authUser, nil
+
 }
 
-//create new user
-func SignUp(db *sqlx.DB) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+// NOTES
 
-	}
-}
+// auth package depends on a database layer(postgres), so that when DI,
+// the instance that is passed should contain the db method implementation
+// that it is set on the interface

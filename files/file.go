@@ -11,10 +11,14 @@ import (
 	"os"
 	"path"
 
+	"bitbucket.org/reneval/lawparser/domain"
 	"bitbucket.org/reneval/lawparser/models"
 
 	"github.com/pkg/errors"
 )
+
+type FileReader struct {
+}
 
 //ReadFromHTTP reads the input files from an http request object
 func ReadFromHTTP(r *http.Request) (multipart.File, *multipart.FileHeader, error) {
@@ -78,7 +82,7 @@ func ListDirFiles(uri string) ([]models.TmpLaw, error) {
 
 //LoadJSONLaw parses json file into a law object given a name.
 //Uses Config File for folder path
-func LoadJSONLaw(name string) (*models.Law, error) {
+func (f *FileReader) LoadJSONLaw(name string) (*domain.Law, error) {
 
 	if name == "" {
 		return nil, errors.Wrap(errors.New("Expected Param"), "Param name not set")
@@ -86,11 +90,12 @@ func LoadJSONLaw(name string) (*models.Law, error) {
 
 	//TODO: use config file
 	path := path.Join("./parsed_laws", name)
+
 	file, err := OpenFile(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "file open failed")
 	}
-	law := new(models.Law)
+	law := new(domain.Law)
 
 	//TODO: Review if it is posible to not unmarshall and send json from file
 	//10ms diference so far
@@ -98,6 +103,5 @@ func LoadJSONLaw(name string) (*models.Law, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "parsing to law failed")
 	}
-
 	return law, nil
 }

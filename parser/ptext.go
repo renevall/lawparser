@@ -195,9 +195,9 @@ func jsonFormat(stack *Stack) *models.Law {
 	return mLaw
 }
 
-var tags = Tags{
-	Tag{"Titulo", "TÍTULO"},
-	Tag{"Capitulo", "Capí?tulo\\s|Capitulo\\s|CAPÍ?TULO\\s"},
-	// Tag{"Artículo", "Artículo\\s\\d+"},
-	Tag{"Arto", "Art.\\s\\d+|Artículo\\s\\d+"},
-}
+// var tags = Tags{
+// 	Tag{"Titulo", "^TÍTULO\\s?([IVX\u00C0-\u00FF]|$)|^TITULO\\s?([IVX\u00C0-\u00FF]|$)"},
+// 	Tag{"Capitulo", "Capítulo\\s[\u00C0-\u00FF]?\\w+$|^Capí?tulo\\s?\\w{0,3}$|^Capitulo\\s?\\w{0,3}$|^CAP(Í?|I?)TULO\\s?"},
+// 	Tag{"Arto", "^\f?Art.\\s\\d+|^Artículo\\s\\d+"},
+// 	Tag{"Libro", "^TÍTULO\\s?([IVX\u00C0-\u00FF]|$)"},
+// }
