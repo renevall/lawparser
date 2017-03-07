@@ -1,6 +1,8 @@
 package router
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"bitbucket.org/reneval/lawparser/domain"
@@ -74,6 +76,27 @@ func (l *Law) SaveLawDB(c *gin.Context) {
 		return
 	}
 	err = l.ReaderWriter.InsertLawDB(law)
-	// fmt.Println(law)
+}
+
+func (l *Law) UpdateTmpLaw(c *gin.Context) {
+	dir := "./parsed_laws/"
+	name := c.Param("name")
+	law := &domain.Law{}
+	err := c.BindJSON(&law)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"code": 200, "error": "Ilegal JSON request"})
+		return
+	}
+
+	b, err := json.Marshal(law)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	if err := ioutil.WriteFile(dir+name, b, 0644); err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 200, "data": law})
 
 }
