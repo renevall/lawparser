@@ -45,16 +45,17 @@ func (l *Law) GetLawsJSON(c *gin.Context) {
 
 	laws, err := l.ReaderWriter.GetLaws()
 	if err != nil {
-		c.JSON(http.StatusOK, err)
+		c.JSON(http.StatusOK, gin.H{"status": "error",
+			"message": "Could not retrieve Laws"})
 		return
 	}
 
 	if len(laws) < 1 {
-		c.JSON(http.StatusOK, "")
+		c.JSON(http.StatusOK, gin.H{"status": "success"})
 		return
 	}
 
-	c.JSON(http.StatusOK, laws)
+	c.JSON(http.StatusOK, gin.H{"status": "success", "data": laws})
 }
 
 // ReadTMPLaw Reads a TMP Law (Flat file)  and renders it as JSON to be consumed

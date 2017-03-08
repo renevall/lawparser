@@ -127,42 +127,6 @@ func (l *Law) InsertLawDB(newLaw *domain.Law) error {
 		}
 		tx.Commit()
 	}
-
-	// for _, title := range l.Law.Titles {
-	// 	pqTitle.Title = &title
-	// 	pqTitle.Title.LawID = lawID
-
-	// 	titleID, err := pqTitle.CreateTitle()
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 		return nil
-	// 	}
-
-	// 	for _, chapter := range title.Chapters {
-	// 		pqChapter.Chapter = &chapter
-	// 		pqChapter.Chapter.TitleID = titleID
-	// 		chapterID, err := pqChapter.CreateChapter()
-	// 		if err != nil {
-	// 			log.Println(err)
-	// 			return nil
-	// 		}
-	// 		tx, err := l.DB.Beginx()
-	// 		if err != nil {
-	// 			log.Fatal(err)
-	// 		}
-	// 		for _, article := range chapter.Articles {
-	// 			pqArticle.Article = &article
-	// 			pqArticle.Article.ChapterID = chapterID
-	// 			err := pqArticle.CreateArticle(tx)
-	// 			if err != nil {
-	// 				log.Println(err)
-	// 				return nil
-	// 			}
-	// 		}
-	// 		tx.Commit()
-
-	// 	}
-	// }
 	elapsed := time.Since(start)
 	log.Println("Inserting data to db took: ", elapsed)
 	return nil
