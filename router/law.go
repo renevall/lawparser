@@ -30,6 +30,7 @@ type Law struct {
 
 //GetLawsTMP responds with all tmp laws (flat file)
 func (l *Law) GetLawsTMP(c *gin.Context) {
+	// TODO: Use Global Config
 	laws, err := files.ListDirFiles("./parsed_laws")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
@@ -85,7 +86,7 @@ func (l *Law) SaveLawDB(c *gin.Context) {
 		return
 	}
 
-	// TODO: Delete JSON Law
+	files.DeleteFile("./parsed_laws/" + law.Init)
 
 	c.JSON(http.StatusOK, gin.H{"status": "success", "data": law})
 }

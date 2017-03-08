@@ -62,6 +62,15 @@ func OpenFile(uri string) ([]byte, error) {
 	return file, nil
 }
 
+//DeleteFile removes a file from filesystem
+func DeleteFile(uri string) error {
+	err := os.Remove(uri)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 //ListDirFiles list all files but dirs
 func ListDirFiles(uri string) ([]models.TmpLaw, error) {
 	files, err := ioutil.ReadDir(uri)

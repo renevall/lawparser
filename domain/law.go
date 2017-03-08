@@ -15,6 +15,7 @@ type Law struct {
 	Titles       []Title   `json:"titles"`
 	Chapters     []Chapter `json:"chapters"`
 	Articles     []Article `json:"articles"`
+	Init         string    `json:"init"`
 }
 
 type LawStore interface {
