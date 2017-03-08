@@ -6,6 +6,7 @@ type Title struct {
 	Name     string    `json:"name"`
 	Chapters []Chapter `json:"chapters"`
 	LawID    int64     `json:"lawID"`
+	BookID   int64     `json:"bookID"`
 	Reviewed bool      `json:"reviewed"`
 }
 

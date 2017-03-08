@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"fmt"
+
 	"bitbucket.org/reneval/lawparser/domain"
 	"bitbucket.org/reneval/lawparser/files"
 	"github.com/gin-gonic/gin"
@@ -72,10 +74,20 @@ func (l *Law) SaveLawDB(c *gin.Context) {
 	law := &domain.Law{}
 	err := c.BindJSON(&law)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{"code": 200, "error": "Ilegal JSON request"})
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Ilegal JSON request"})
 		return
 	}
 	err = l.ReaderWriter.InsertLawDB(law)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Could not save to DB"})
+		return
+	}
+
+	// TODO: Delete JSON Law
+
+	c.JSON(http.StatusOK, gin.H{"status": "success", "data": law})
 }
 
 func (l *Law) UpdateTmpLaw(c *gin.Context) {

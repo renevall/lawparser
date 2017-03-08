@@ -1,9 +1,9 @@
 package domain
 
 type Book struct {
-	ID       int     `json:"id"`
+	ID       int64   `json:"id"`
 	Name     string  `json:"name"`
-	LawID    int     `json:"lawID"`
+	LawID    int64   `json:"lawID"`
 	Titles   []Title `json:"titles"`
 	Reviewed bool    `json:"reviewed"`
 }

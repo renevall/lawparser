@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"bitbucket.org/reneval/lawparser/domain"
+	"github.com/jmoiron/sqlx"
 )
 
 type Law struct {
@@ -48,43 +49,120 @@ func (l *Law) InsertLawDB(newLaw *domain.Law) error {
 		log.Println(err)
 		return nil
 	}
-	pqTitle := &Title{DB: l.DB}
-	pqChapter := &Chapter{DB: l.DB}
-	pqArticle := &Article{DB: l.DB}
-	for _, title := range l.Law.Titles {
-		pqTitle.Title = &title
-		pqTitle.Title.LawID = lawID
 
-		titleID, err := pqTitle.CreateTitle()
-		if err != nil {
-			log.Println(err)
-			return nil
-		}
-		for _, chapter := range title.Chapters {
-			pqChapter.Chapter = &chapter
-			pqChapter.Chapter.TitleID = titleID
-			chapterID, err := pqChapter.CreateChapter()
+	if len(l.Law.Books) > 0 {
+		for _, book := range l.Law.Books {
+			bookID, err := fillBooks(&book, lawID, l.DB)
 			if err != nil {
-				log.Println(err)
-				return nil
+				return err
 			}
-			tx, err := l.DB.Beginx()
-			if err != nil {
-				log.Fatal(err)
-			}
-			for _, article := range chapter.Articles {
-				pqArticle.Article = &article
-				pqArticle.Article.ChapterID = chapterID
-				err := pqArticle.CreateArticle(tx)
-				if err != nil {
-					log.Println(err)
-					return nil
+			if len(book.Titles) > 0 {
+				for _, title := range book.Titles {
+					titleID, err := fillTitles(&title, lawID, bookID, l.DB)
+					if err != nil {
+						return err
+					}
+					if len(title.Chapters) > 0 {
+						for _, chapter := range title.Chapters {
+							chapterID, err := fillChapter(&chapter, lawID, titleID, l.DB)
+							if err != nil {
+								return err
+							}
+							if len(chapter.Articles) > 0 {
+								tx, err := l.DB.Beginx()
+								if err != nil {
+									return err
+								}
+								for _, article := range chapter.Articles {
+									_, err := fillArticle(&article, lawID, chapterID, l.DB, tx)
+									if err != nil {
+										return nil
+									}
+								}
+								tx.Commit()
+							}
+						}
+					}
 				}
 			}
-			tx.Commit()
-
 		}
+	} else if len(l.Law.Titles) > 0 {
+		for _, title := range l.Law.Titles {
+			titleID, err := fillTitles(&title, lawID, 0, l.DB)
+			if err != nil {
+				return err
+			}
+			if len(title.Chapters) > 0 {
+				for _, chapter := range title.Chapters {
+					chapterID, err := fillChapter(&chapter, lawID, titleID, l.DB)
+					if err != nil {
+						return err
+					}
+					if len(chapter.Articles) > 0 {
+						tx, err := l.DB.Beginx()
+						if err != nil {
+							return err
+						}
+						for _, article := range chapter.Articles {
+							_, err := fillArticle(&article, lawID, chapterID, l.DB, tx)
+							if err != nil {
+								return nil
+							}
+						}
+						tx.Commit()
+					}
+				}
+			}
+		}
+	} else if len(l.Law.Articles) > 0 {
+		tx, err := l.DB.Beginx()
+		if err != nil {
+			return err
+		}
+		for _, article := range l.Law.Articles {
+			_, err := fillArticle(&article, lawID, 0, l.DB, tx)
+			if err != nil {
+				return nil
+			}
+		}
+		tx.Commit()
 	}
+
+	// for _, title := range l.Law.Titles {
+	// 	pqTitle.Title = &title
+	// 	pqTitle.Title.LawID = lawID
+
+	// 	titleID, err := pqTitle.CreateTitle()
+	// 	if err != nil {
+	// 		log.Println(err)
+	// 		return nil
+	// 	}
+
+	// 	for _, chapter := range title.Chapters {
+	// 		pqChapter.Chapter = &chapter
+	// 		pqChapter.Chapter.TitleID = titleID
+	// 		chapterID, err := pqChapter.CreateChapter()
+	// 		if err != nil {
+	// 			log.Println(err)
+	// 			return nil
+	// 		}
+	// 		tx, err := l.DB.Beginx()
+	// 		if err != nil {
+	// 			log.Fatal(err)
+	// 		}
+	// 		for _, article := range chapter.Articles {
+	// 			pqArticle.Article = &article
+	// 			pqArticle.Article.ChapterID = chapterID
+	// 			err := pqArticle.CreateArticle(tx)
+	// 			if err != nil {
+	// 				log.Println(err)
+	// 				return nil
+	// 			}
+	// 		}
+	// 		tx.Commit()
+
+	// 	}
+	// }
 	elapsed := time.Since(start)
 	log.Println("Inserting data to db took: ", elapsed)
 	return nil
@@ -112,4 +190,60 @@ func (l *Law) CreateLaw() (int64, error) {
 
 	return id, nil
 
+}
+
+func fillBooks(book *domain.Book, lawID int64, db *DB) (int64, error) {
+	pgBook := &Book{DB: db}
+	pgBook.Book = book
+	pgBook.Book.LawID = lawID
+
+	bookID, err := pgBook.createBook()
+	if err != nil {
+		return 0, err
+	}
+
+	return bookID, nil
+
+}
+
+func fillTitles(title *domain.Title, lawID int64, bookID int64, db *DB) (int64, error) {
+	pqTitle := &Title{DB: db}
+	pqTitle.Title = title
+	pqTitle.Title.LawID = lawID
+	pqTitle.Title.BookID = bookID
+
+	titleID, err := pqTitle.CreateTitle()
+	if err != nil {
+		return 0, nil
+	}
+
+	return titleID, nil
+}
+
+func fillChapter(chapter *domain.Chapter, lawID int64, titleID int64, db *DB) (int64, error) {
+	pqChapter := &Chapter{DB: db}
+	pqChapter.Chapter = chapter
+	pqChapter.Chapter.LawID = lawID
+	pqChapter.Chapter.TitleID = titleID
+
+	chapterID, err := pqChapter.CreateChapter()
+	if err != nil {
+		return 0, nil
+	}
+
+	return chapterID, nil
+}
+
+func fillArticle(article *domain.Article, lawID int64, chapterID int64, db *DB, tx *sqlx.Tx) (int64, error) {
+	pqArticle := &Article{DB: db}
+	pqArticle.Article = article
+	pqArticle.Article.LawID = lawID
+	pqArticle.Article.ChapterID = chapterID
+
+	articleID, err := pqArticle.CreateArticle(tx)
+	if err != nil {
+		return 0, nil
+	}
+
+	return articleID, nil
 }
