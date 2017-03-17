@@ -15,6 +15,7 @@ import (
 //LawReader interface reads Law via db package
 type LawReaderWriter interface {
 	GetLaws() ([]domain.Law, error)
+	GetLaw(id string) (domain.Law, error)
 	InsertLawDB(*domain.Law) error
 }
 
@@ -56,6 +57,18 @@ func (l *Law) GetLawsJSON(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "success", "data": laws})
+}
+
+//ReadLaw process a GET request of a single Law
+func (l *Law) GetLaw(c *gin.Context) {
+	id := c.Param("id")
+	law, err := l.ReaderWriter.GetLaw(id)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Record not Found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": law})
 }
 
 // ReadTMPLaw Reads a TMP Law (Flat file)  and renders it as JSON to be consumed

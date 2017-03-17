@@ -39,6 +39,112 @@ func (l *Law) GetLaws() ([]domain.Law, error) {
 	return laws, nil
 }
 
+//GetLaw returns one Law record found on the db
+func (l *Law) GetLaw(id string) (domain.Law, error) {
+	law := domain.Law{}
+	err := l.Get(&law, "SELECT * FROM law WHERE law_id=$1", id)
+	if err != nil {
+		return law, err
+	}
+
+	//books
+	books := []domain.Book{}
+	err = l.Select(&books, "SELECT * FROM book WHERE law_id=$1", id)
+	if err != nil {
+		return law, err
+	}
+	law.Books = books
+
+	//titles
+	titles := []domain.Title{}
+	err = l.Select(&titles, "SELECT * FROM title WHERE law_id=$1", id)
+	if err != nil {
+		return law, err
+	}
+	if len(law.Books) > 0 {
+		for bIndex, book := range law.Books {
+			for _, title := range titles {
+				if book.ID == title.BookID {
+					law.Books[bIndex].Titles = append(law.Books[bIndex].Titles, title)
+
+				}
+			}
+		}
+	} else {
+		law.Titles = titles
+	}
+
+	//chapters
+	chapters := []domain.Chapter{}
+	err = l.Select(&chapters, "SELECT * FROM chapter WHERE law_id=$1", id)
+	if err != nil {
+		return law, err
+	}
+	if len(law.Books) > 0 {
+		for bIndex, book := range law.Books {
+			for tIndex, title := range book.Titles {
+				for _, chapter := range chapters {
+					if title.ID == chapter.ID {
+						law.Books[bIndex].Titles[tIndex].Chapters =
+							append(law.Books[bIndex].Titles[tIndex].Chapters, chapter)
+					}
+				}
+
+			}
+		}
+	} else {
+		if len(law.Titles) > 0 {
+			for tIndex, title := range law.Titles {
+				for _, chapter := range chapters {
+					if title.ID == chapter.ID {
+						law.Titles[tIndex].Chapters =
+							append(law.Titles[tIndex].Chapters, chapter)
+					}
+				}
+			}
+		} else {
+			law.Chapters = chapters
+		}
+	}
+
+	//articles
+	articles := []domain.Article{}
+	err = l.Select(&articles, "SELECT * FROM article WHERE law_id=$1", id)
+	if err != nil {
+		return law, err
+	}
+	if len(law.Books) > 0 {
+		for bIndex, book := range law.Books {
+			for tIndex, title := range book.Titles {
+				for cIndex, chapter := range title.Chapters {
+					for _, article := range articles {
+						if chapter.ID == article.ChapterID {
+							law.Books[bIndex].Titles[tIndex].Chapters[cIndex].Articles =
+								append(law.Books[bIndex].Titles[tIndex].Chapters[cIndex].Articles, article)
+						}
+					}
+				}
+			}
+		}
+	} else {
+		if len(law.Titles) > 0 {
+			for tIndex, title := range law.Titles {
+				for cIndex, chapter := range title.Chapters {
+					for _, article := range articles {
+						if chapter.ID == article.ChapterID {
+							law.Titles[tIndex].Chapters[cIndex].Articles =
+								append(law.Titles[tIndex].Chapters[cIndex].Articles, article)
+						}
+					}
+				}
+			}
+		} else {
+			law.Articles = articles
+		}
+	}
+	return law, nil
+}
+
 //InsertLawDB inserts all parsed law to DB
 func (l *Law) InsertLawDB(newLaw *domain.Law) error {
 	l.Law = newLaw

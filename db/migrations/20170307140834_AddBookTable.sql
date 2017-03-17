@@ -4,7 +4,6 @@
 CREATE TABLE IF NOT EXISTS book (
     book_id integer NOT NULL,
     name text,
-    text text,
     law_id integer,
     reviewed boolean
 );

@@ -13,9 +13,9 @@ type Title struct {
 
 //CreateTitle Adds a Chapter to the DB
 func (t *Title) CreateTitle() (int64, error) {
-	q := "INSERT INTO Title(name,law_id,reviewed) VALUES($1,$2,$3) RETURNING title_id"
+	q := "INSERT INTO Title(name,law_id,book_id,reviewed) VALUES($1,$2,$3,$4) RETURNING title_id"
 	var id int64
-	err := t.DB.QueryRow(q, t.Title.Name, t.Title.LawID, t.Title.Reviewed).Scan(&id)
+	err := t.DB.QueryRow(q, t.Title.Name, t.Title.LawID, t.Title.BookID, t.Title.Reviewed).Scan(&id)
 	if err != nil {
 		log.Println(err)
 		return 0, err

@@ -3,10 +3,10 @@ package domain
 import "time"
 
 type Law struct {
-	ID           int       `json:"id"`
+	ID           int       `json:"id" db:"law_id"`
 	Name         string    `json:"name"`
-	ApprovalDate time.Time `json:"approvalDate"`
-	PublishDate  time.Time `json:"publishDate"`
+	ApprovalDate time.Time `json:"approvalDate" db:"approval_date"`
+	PublishDate  time.Time `json:"publishDate" db:"publish_date"`
 	Journal      string    `json:"journal"`
 	Intro        string    `json:"intro"`
 	Reviewed     bool      `json:"reviewed"`
@@ -22,6 +22,7 @@ type LawStore interface {
 	GetLaws() ([]Law, error)
 	InsertLawDB(law *Law) error
 	CreateLaw() (int64, error)
+	GetLaw(id string) (Law, error)
 }
 
 //AddTitle adds parsed title data to parsed law object
@@ -30,12 +31,11 @@ func (law *Law) AddTitle(title Title) []Title {
 	return law.Titles
 }
 
+//AddBook adds parsed Bookdata to law object
 func (law *Law) AddBook(book Book) []Book {
 	law.Books = append(law.Books, book)
 	return law.Books
 }
-
-//AddBook adds parsed Bookdata to law object
 
 //AddChapter adds parsed article data to parsed law object
 //when there is no title
