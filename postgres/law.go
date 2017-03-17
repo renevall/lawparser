@@ -53,7 +53,9 @@ func (l *Law) GetLaw(id string) (domain.Law, error) {
 	if err != nil {
 		return law, err
 	}
-	law.Books = books
+	if len(books) > 0 {
+		law.Books = books
+	}
 
 	//titles
 	titles := []domain.Title{}
@@ -64,7 +66,7 @@ func (l *Law) GetLaw(id string) (domain.Law, error) {
 	if len(law.Books) > 0 {
 		for bIndex, book := range law.Books {
 			for _, title := range titles {
-				if book.ID == title.BookID {
+				if book.ID == title.BookID.Int64 {
 					law.Books[bIndex].Titles = append(law.Books[bIndex].Titles, title)
 
 				}
@@ -84,7 +86,7 @@ func (l *Law) GetLaw(id string) (domain.Law, error) {
 		for bIndex, book := range law.Books {
 			for tIndex, title := range book.Titles {
 				for _, chapter := range chapters {
-					if title.ID == chapter.ID {
+					if title.ID == chapter.TitleID {
 						law.Books[bIndex].Titles[tIndex].Chapters =
 							append(law.Books[bIndex].Titles[tIndex].Chapters, chapter)
 					}
@@ -96,7 +98,7 @@ func (l *Law) GetLaw(id string) (domain.Law, error) {
 		if len(law.Titles) > 0 {
 			for tIndex, title := range law.Titles {
 				for _, chapter := range chapters {
-					if title.ID == chapter.ID {
+					if title.ID == chapter.TitleID {
 						law.Titles[tIndex].Chapters =
 							append(law.Titles[tIndex].Chapters, chapter)
 					}
@@ -280,7 +282,13 @@ func fillTitles(title *domain.Title, lawID int64, bookID int64, db *DB) (int64, 
 	pqTitle := &Title{DB: db}
 	pqTitle.Title = title
 	pqTitle.Title.LawID = lawID
-	pqTitle.Title.BookID = bookID
+	pqTitle.Title.BookID.Int64 = bookID
+	if bookID == 0 {
+		pqTitle.Title.BookID.Valid = false
+	} else {
+		pqTitle.Title.BookID.Valid = true
+
+	}
 
 	titleID, err := pqTitle.CreateTitle()
 	if err != nil {
