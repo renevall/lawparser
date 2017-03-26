@@ -1,6 +1,7 @@
 package router
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -69,6 +70,25 @@ func (l *Law) GetLaw(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": law})
+}
+
+//IndexLaw sends a Request to the indexer service to Index a Law
+func (l *Law) IndexLaw(c *gin.Context) {
+	url := "http://localhost:8888/law"
+	id := c.Param("id")
+	law, err := l.ReaderWriter.GetLaw(id)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Record not Found"})
+		return
+	}
+	b := new(bytes.Buffer)
+	json.NewEncoder(b).Encode(law)
+	_, err = http.Post(url, "application/json; charset=utf-8", b)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Problem with indexer service"})
+	}
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 // ReadTMPLaw Reads a TMP Law (Flat file)  and renders it as JSON to be consumed
