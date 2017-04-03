@@ -1,6 +1,7 @@
 package parser
 
 import "testing"
+import "sync"
 
 func TestPrepareTags(t *testing.T) {
 	tag1 := Tags{
@@ -33,4 +34,37 @@ func TestPrepareTags(t *testing.T) {
 		}
 	}
 
+}
+
+func TestFindBasicDataName(t *testing.T) {
+	input := make(chan string, 1)
+	defer close(input)
+	done := make(chan struct{})
+	defer close(done)
+	wg := new(sync.WaitGroup)
+
+	nameTests := []struct {
+		in  string
+		out string
+	}{
+		{"LEY DE CONCERTACIÓN TRIBUTARIA", "LEY DE CONCERTACIÓN TRIBUTARIA"},
+		{"CÓDIGO TRIBUTARIO", "CÓDIGO TRIBUTARIO"},
+		{"Código Tributario", ""},
+		{"Some Text CÓDIGO TRIBUTARIO", ""},
+		{"Some Text LEY DE CONCERTACIÓN TRIBUTARIA", ""},
+		{"CÓDIGO PROCESAL CIVIL DE LA REPÚBLICA DE NICARAGUA", "CÓDIGO PROCESAL CIVIL DE LA REPÚBLICA DE NICARAGUA"},
+		{"CODIGO DEL TRABAJO", "CODIGO DEL TRABAJO"},
+	}
+
+	for _, tt := range nameTests {
+		law := NewLaw()
+		FindBasicData(law, done, input, wg)
+		input <- tt.in
+		input <- "Art. 1"
+
+		<-done
+		if law.Name != tt.out {
+			t.Errorf("Name testing %q, expected %q, actual %q", tt.in, tt.out, law.Name)
+		}
+	}
 }

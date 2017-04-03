@@ -38,8 +38,9 @@ func ParseConcurrent(uri string) *domain.Law {
 
 	in := StreamLines(uri)
 	chs := fanOut(done, in, wg)
+	law := NewLaw()
 
-	law := FindBasicData(done, chs[0], wg)
+	FindBasicData(law, done, chs[0], wg)
 	tags, chi := FindCTags(chs[1], wg)
 	lines := prepareData(uri, wg)
 	lawLIFO := makeLaw(lines, law, tags, chi, wg)
@@ -50,6 +51,10 @@ func ParseConcurrent(uri string) *domain.Law {
 
 	return law
 
+}
+
+func NewLaw() *domain.Law {
+	return &domain.Law{}
 }
 
 // StreamLines opens file and send it line by line
@@ -104,19 +109,17 @@ func fanOut(done <-chan struct{}, ch <-chan string, wg *sync.WaitGroup) []chan s
 }
 
 //FindBasicData process the data before first article
-func FindBasicData(done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) *domain.Law {
-	fmt.Println("find basic data")
-	law := new(domain.Law)
-	t := time.Now()
+func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) {
+	// t := time.Now()
 	wg.Add(1)
+	matches := make(map[int]*regexp.Regexp)
+	matches[0], _ = regexp.Compile("(\\d{1,2}\\s(de|del))\\s\\w+\\s+(del|de)\\s\\d+")
+	matches[1], _ = regexp.Compile("\\sdel|\\sde")
 	go func(*domain.Law) {
 		defer wg.Done()
 		for text := range in {
 			for _, tag := range intro {
 				r, _ := regexp.Compile(tag.regex)
-				matches := make(map[int]*regexp.Regexp)
-				matches[0], _ = regexp.Compile("(\\d{1,2}\\s(de|del))\\s\\w+\\s+(del|de)\\s\\d+")
-				matches[1], _ = regexp.Compile("\\sdel|\\sde")
 				if r.MatchString(text) {
 					switch tag.name {
 					case "Name":
@@ -136,19 +139,16 @@ func FindBasicData(done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) *
 						break
 
 					case "Arto":
-						fmt.Println("End of Law Header Reached")
+						// fmt.Println("End of Law Header Reached")
 						done <- struct{}{}
-						// wg.Done()
-						ts := time.Since(t)
-						fmt.Println("FindBasicData", ts)
+						// ts := time.Since(t)
+						// fmt.Println("FindBasicData", ts)
 						return
 					}
 				}
 			}
 		}
 	}(law)
-
-	return law
 }
 
 // FindCTags look for keywords in the file
@@ -202,15 +202,15 @@ func prepareData(uri string, wg *sync.WaitGroup) []string {
 
 	var lines []string
 
-	t := time.Now()
+	// t := time.Now()
 	file, err := ioutil.ReadFile(uri)
 	if err != nil {
 		log.Fatal(err)
 	}
 	lines = strings.Split(string(file), "\n")
 
-	ts := time.Since(t)
-	fmt.Println("Prepare data: ", ts)
+	// ts := time.Since(t)
+	// fmt.Println("Prepare data: ", ts)
 
 	return lines
 
@@ -330,7 +330,7 @@ func jsonFormat2(stack *Stack, mLaw *domain.Law) *domain.Law {
 }
 
 func prepareTags(tags []Tag) []preparedTag {
-	t := time.Now()
+	// t := time.Now()
 	var ptags []preparedTag
 	for _, v := range tags {
 		r, _ := regexp.Compile(v.regex)
@@ -338,8 +338,8 @@ func prepareTags(tags []Tag) []preparedTag {
 		ptags = append(ptags, ptag)
 
 	}
-	ts := time.Since(t)
-	fmt.Println("prepareTags Time:", ts)
+	// ts := time.Since(t)
+	// fmt.Println("prepareTags Time:", ts)
 	return ptags
 }
 
@@ -407,7 +407,7 @@ func broadcastCancel(done <-chan struct{}, ch chan<- string, data string) bool {
 }
 
 var intro = Tags{
-	Tag{"Name", "LEY DE|CÓDIGO"},
+	Tag{"Name", "^LEY DE|^C(Ó?|O?)DIGO"},
 	Tag{"Number", "No\\."},
 	Tag{"Aproved", "Aprobada"},
 	Tag{"Diary", "Publicada"},
