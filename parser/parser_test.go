@@ -67,4 +67,26 @@ func TestFindBasicDataName(t *testing.T) {
 			t.Errorf("Name testing %q, expected %q, actual %q", tt.in, tt.out, law.Name)
 		}
 	}
+
+	numberTests := []struct {
+		in  string
+		out int
+	}{
+		{"LEY N°. 902", 902},
+		{"LEY N°. 902 25", 902},
+		{"LEY No. 822", 822},
+		{"LEY No. 185, Aprobada el 5 de Septiembre de 1996", 185},
+	}
+
+	for _, tt := range numberTests {
+		law := NewLaw()
+		FindBasicData(law, done, input, wg)
+		input <- tt.in
+		input <- "Art. 1"
+
+		<-done
+		if law.Number != tt.out {
+			t.Errorf("Name testing %q, expected %d, actual %d", tt.in, tt.out, law.Name)
+		}
+	}
 }

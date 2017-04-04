@@ -113,6 +113,7 @@ ALTER TABLE chapter OWNER TO "Penshiru";
 CREATE TABLE IF NOT EXISTS law (
     law_id integer NOT NULL,
     name text,
+    number integer,
     approval_date date,
     publish_date date,
     journal text,
