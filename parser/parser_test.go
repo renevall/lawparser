@@ -1,7 +1,9 @@
 package parser
 
-import "testing"
-import "sync"
+import (
+	"sync"
+	"testing"
+)
 
 func TestPrepareTags(t *testing.T) {
 	tag1 := Tags{
@@ -86,7 +88,50 @@ func TestFindBasicDataName(t *testing.T) {
 
 		<-done
 		if law.Number != tt.out {
-			t.Errorf("Name testing %q, expected %d, actual %d", tt.in, tt.out, law.Name)
+			t.Errorf("Name testing %q, expected %d, actual %d", tt.in, tt.out, law.Number)
 		}
 	}
+
+	approvalTests := []struct {
+		in  string
+		out string
+	}{
+		{"Aprobada el 30 de Noviembre del 2012", "2012-11-30 00:00:00 +0000 UTC"},
+		{"LEY No. 185, Aprobada el 5 de Septiembre de 1996", "1996-09-05 00:00:00 +0000 UTC"},
+		{"Aprobado el 8 de Abril de 1988", "1988-04-08 00:00:00 +0000 UTC"},
+	}
+
+	for _, tt := range approvalTests {
+		law := NewLaw()
+		FindBasicData(law, done, input, wg)
+		input <- tt.in
+		input <- "Art. 1"
+
+		<-done
+		if law.ApprovalDate.String() != tt.out {
+			t.Errorf("Name testing %q, expected %q, actual %q", tt.in, tt.out, law.ApprovalDate)
+		}
+	}
+
+	diaryTests := []struct {
+		in  string
+		out string
+	}{
+		{"Publicada en La Gaceta No. 241 del 17 de Diciembre del 2012", "241"},
+		{"Publicada en La Gaceta No. 205 del 30 de Octubre de 1996", "205"},
+		// {"Aprobado el 8 de Abril de 1988", "1988-04-08 00:00:00 +0000 UTC"},
+	}
+
+	for _, tt := range diaryTests {
+		law := NewLaw()
+		FindBasicData(law, done, input, wg)
+		input <- tt.in
+		input <- "Art. 1"
+
+		<-done
+		if law.Journal != tt.out {
+			t.Errorf("Name testing %q, expected %q, actual %d", tt.in, tt.out, law.Journal)
+		}
+	}
+
 }

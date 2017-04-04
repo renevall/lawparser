@@ -139,11 +139,21 @@ func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *
 						break
 
 					case "Aproved":
-						fillBasicData(tag.name, text, law, matches)
+						a, err := regexp.Compile("[0-9]{1,2}\\s\\w+\\s\\w+\\s\\w+\\s[0-9]+")
+						if err != nil {
+							fmt.Println(err)
+						}
+						date := a.FindString(text)
+						fillBasicData(tag.name, date, law, matches)
 						break
 
 					case "Diary":
-						fillBasicData(tag.name, text, law, matches)
+						d, err := regexp.Compile("[0-9]+")
+						if err != nil {
+							fmt.Println(err)
+						}
+						journal := d.FindString(text)
+						fillBasicData(tag.name, journal, law, matches)
 						break
 
 					case "Arto":
@@ -361,14 +371,14 @@ func fillBasicData(tag string, value string, law *domain.Law, matches map[int]*r
 		law.Number, _ = strconv.Atoi(value)
 		break
 	case "Aproved":
-		// TODO: parse date, using now for db test
 		location, _ := time.LoadLocation("")
 		data := matches[0].FindString(value)
-		fmt.Println("Date match found", data)
 
 		data = matches[1].ReplaceAllString(data, "")
-		//law.ApprovalDate =
-		date, _ := monday.ParseInLocation("02 January 2006", data, location, monday.LocaleEsES)
+		date, err := monday.ParseInLocation("2 January 2006", data, location, monday.LocaleEsES)
+		if err != nil {
+			fmt.Println(err)
+		}
 		law.ApprovalDate = date
 		break
 
@@ -417,7 +427,7 @@ func broadcastCancel(done <-chan struct{}, ch chan<- string, data string) bool {
 var intro = Tags{
 	Tag{"Name", "^LEY DE|^C(Ó?|O?)DIGO"},
 	Tag{"Number", "No\\.|N°."},
-	Tag{"Aproved", "Aprobada"},
+	Tag{"Aproved", "Aprobad(a|o)"},
 	Tag{"Diary", "Publicada"},
 	Tag{"Arto", "Art\\.\\s\\d+"},
 }
