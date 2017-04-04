@@ -119,7 +119,7 @@ func TestFindBasicDataName(t *testing.T) {
 	}{
 		{"Publicada en La Gaceta No. 241 del 17 de Diciembre del 2012", "241"},
 		{"Publicada en La Gaceta No. 205 del 30 de Octubre de 1996", "205"},
-		// {"Aprobado el 8 de Abril de 1988", "1988-04-08 00:00:00 +0000 UTC"},
+		{"Publicado en La Gaceta No. 121 del 27 de Junio del 2000.", "121"},
 	}
 
 	for _, tt := range diaryTests {

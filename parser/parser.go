@@ -116,6 +116,7 @@ func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *
 	matches := make(map[int]*regexp.Regexp)
 	matches[0], _ = regexp.Compile("(\\d{1,2}\\s(de|del))\\s\\w+\\s+(del|de)\\s\\d+")
 	matches[1], _ = regexp.Compile("\\sdel|\\sde")
+	matches[2], _ = regexp.Compile("\\.")
 	go func(*domain.Law) {
 		defer wg.Done()
 		for text := range in {
@@ -153,6 +154,7 @@ func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *
 							fmt.Println(err)
 						}
 						journal := d.FindString(text)
+						fmt.Println(journal)
 						fillBasicData(tag.name, journal, law, matches)
 						break
 
@@ -375,6 +377,7 @@ func fillBasicData(tag string, value string, law *domain.Law, matches map[int]*r
 		data := matches[0].FindString(value)
 
 		data = matches[1].ReplaceAllString(data, "")
+		data = matches[2].ReplaceAllString(data, "")
 		date, err := monday.ParseInLocation("2 January 2006", data, location, monday.LocaleEsES)
 		if err != nil {
 			fmt.Println(err)
@@ -428,7 +431,7 @@ var intro = Tags{
 	Tag{"Name", "^LEY DE|^C(Ó?|O?)DIGO"},
 	Tag{"Number", "No\\.|N°."},
 	Tag{"Aproved", "Aprobad(a|o)"},
-	Tag{"Diary", "Publicada"},
+	Tag{"Diary", "Publicad(a|o)"},
 	Tag{"Arto", "Art\\.\\s\\d+"},
 }
 
