@@ -39,6 +39,8 @@ func TestPrepareTags(t *testing.T) {
 }
 
 func TestFindBasicDataName(t *testing.T) {
+	// fmt.Println("TestFindBasicDataName started")
+
 	input := make(chan string, 1)
 	defer close(input)
 	done := make(chan struct{})
@@ -132,6 +134,65 @@ func TestFindBasicDataName(t *testing.T) {
 		if law.Journal != tt.out {
 			t.Errorf("Name testing %q, expected %q, actual %d", tt.in, tt.out, law.Journal)
 		}
+	}
+
+}
+
+func TestFindCTags(t *testing.T) {
+	in := make(chan string)
+	index := make(chan []int)
+	defer close(index)
+	tags := make(chan foundTag)
+
+	wg := new(sync.WaitGroup)
+
+	keywordTests := []struct {
+		in  string
+		out string
+	}{
+		{"Artículo 22", "Arto"},
+		{"Arto. 22", "Arto"},
+		{"Articulo", ""},
+		{"Articulo 11", "Arto"},
+		{"Este es no es Artículo", ""},
+		{"Este es no es Articulo", ""},
+		{"Este es no es articulo", ""},
+		{"Artículo 1. Objeto.", "Arto"},
+		{"Art. 1", "Arto"},
+		{"Art. 2 Principios tributarios.", "Arto"},
+		{"Art. 12 Vínculos económicos de las rentas del trabajo de fuente", "Arto"},
+		{"Arto. 12", "Arto"},
+		{"Articulo 12", "Arto"},
+		{"Artículo 12", "Arto"},
+	}
+	notFound := keywordTests
+
+	tags, index = FindCTags(in, wg)
+
+	go func() {
+		for _, tt := range keywordTests {
+			in <- tt.in
+		}
+		close(in)
+	}()
+	<-index
+
+	for tag := range tags {
+		found := tag
+		for i, keyword := range notFound {
+			if keyword.in == found.text {
+				notFound = append(notFound[:i], notFound[i+1:]...)
+				break
+			}
+		}
+	}
+	// fmt.Println(len(notFound))
+	for _, fail := range notFound {
+		if fail.out != "" {
+			t.Errorf("keyword testing %q, expected %q, actual %q", fail.in, fail.out, "")
+
+		}
+
 	}
 
 }

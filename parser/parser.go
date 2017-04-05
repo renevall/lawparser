@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,6 +20,7 @@ import (
 type foundTag struct {
 	tagname string
 	line    int
+	text    string
 }
 
 type preparedTag struct {
@@ -154,7 +154,6 @@ func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *
 							fmt.Println(err)
 						}
 						journal := d.FindString(text)
-						fmt.Println(journal)
 						fillBasicData(tag.name, journal, law, matches)
 						break
 
@@ -173,15 +172,15 @@ func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *
 
 // FindCTags look for keywords in the file
 func FindCTags(in <-chan string, wg *sync.WaitGroup) (chan foundTag, chan []int) {
-	fmt.Println("FindCTags reached")
+	// fmt.Println("FindCTags reached")
 	wg.Add(1)
 	var keys []int
 
 	chm := make(chan foundTag)
 	chi := make(chan []int)
 
-	go func(chan foundTag, chan []int) {
-		ti := time.Now()
+	go func() {
+		// ti := time.Now()
 
 		i := 0
 		pTags := prepareTags(tags)
@@ -190,28 +189,30 @@ func FindCTags(in <-chan string, wg *sync.WaitGroup) (chan foundTag, chan []int)
 		for text := range in {
 			for _, reg := range pTags {
 				if reg.exp.MatchString(text) {
-					f := foundTag{tagname: reg.name, line: i + 1}
+					f := foundTag{tagname: reg.name, line: i + 1, text: text}
 					ft = append(ft, f)
 					keys = append(keys, i+1)
 					break
 				}
 			}
 			i++
-		}
 
+		}
 		chi <- keys
 
+		// fmt.Println("Second stage reached")
 		for _, v := range ft {
 			chm <- v
 		}
-		sort.Ints(keys)
 
-		ts := time.Since(ti)
-		fmt.Println("FindCTags Time:", ts)
+		// sort.Ints(keys)
+
+		// ts := time.Since(ti)
+		// fmt.Println("FindCTags Time:", ts)
 		close(chm)
 		wg.Done()
 
-	}(chm, chi)
+	}()
 
 	return chm, chi
 
@@ -439,6 +440,6 @@ var intro = Tags{
 var tags = Tags{
 	Tag{"Titulo", "^TÍTULO\\s?([IVX\u00C0-\u00FF]|$)|^TITULO\\s?([IVX\u00C0-\u00FF]|$)"},
 	Tag{"Capitulo", "^\f?(?:Capítulo\\s[\u00C0-\u00FF]?\\w+$|Capí?tulo\\s?\\w{0,3}$|Capitulo\\s?\\w{0,3}$|CAP(Í?|I?)TULO\\s?)"},
-	Tag{"Arto", "^\f?(?:Art.\\s\\d+|^Artículo\\s\\d+)"},
+	Tag{"Arto", `^\f?(?:Art.\s\d+|Arto.\s\d+|Artículo\s\d+|Articulo\s\d+)`},
 	Tag{"Libro", "^LIBRO\\s[A-Z]+$"},
 }
