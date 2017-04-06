@@ -147,23 +147,40 @@ func TestFindCTags(t *testing.T) {
 	wg := new(sync.WaitGroup)
 
 	keywordTests := []struct {
-		in  string
-		out string
+		in    string
+		out   string
+		found string ``
 	}{
-		{"Artículo 22", "Arto"},
-		{"Arto. 22", "Arto"},
-		{"Articulo", ""},
-		{"Articulo 11", "Arto"},
-		{"Este es no es Artículo", ""},
-		{"Este es no es Articulo", ""},
-		{"Este es no es articulo", ""},
-		{"Artículo 1. Objeto.", "Arto"},
-		{"Art. 1", "Arto"},
-		{"Art. 2 Principios tributarios.", "Arto"},
-		{"Art. 12 Vínculos económicos de las rentas del trabajo de fuente", "Arto"},
-		{"Arto. 12", "Arto"},
-		{"Articulo 12", "Arto"},
-		{"Artículo 12", "Arto"},
+		{"Artículo 22", "Arto", ""},
+		{"Arto. 22", "Arto", ""},
+		{"Articulo", "", ""},
+		{"Articulo 11", "Arto", ""},
+		{"Este es no es Artículo", "", ""},
+		{"Este es no es Articulo", "", ""},
+		{"Este es no es articulo", "", ""},
+		{"Artículo 1. Objeto.", "Arto", ""},
+		{"Art. 1", "Arto", ""},
+		{"Art. 2 Principios tributarios.", "Arto", ""},
+		{"Art. 12 Vínculos económicos de las rentas del trabajo de fuente", "Arto", ""},
+		{"Arto. 12", "Arto", ""},
+		{"Articulo 12", "Arto", ""},
+		{"Artículo 12", "Arto", ""},
+		{"LIBRO I", "Libro", ""},
+		{"LIBRO V", "Libro", ""},
+		{"LIBRO IV", "Libro", ""},
+		{"TÍTULO I", "Titulo", ""},
+		{"TITULO II", "Titulo", ""},
+		{"TÍTULO IV", "Titulo", ""},
+		{"TÍTULO ÚNICO", "Titulo", ""},
+		{"Este es no es título", "", ""},
+		{"titulo II", "", ""},
+		{"Título II", "", ""},
+		{"Capítulo I", "Capitulo", ""},
+		{"Capitulo II", "Capitulo", ""},
+		{"Capítulo IV", "Capitulo", ""},
+		{"Capítulo Único", "", ""},
+		{"Este es no es capítulo", "", ""},
+		{"Este es no es Capitulo", "", ""},
 	}
 	notFound := keywordTests
 
@@ -181,7 +198,11 @@ func TestFindCTags(t *testing.T) {
 		found := tag
 		for i, keyword := range notFound {
 			if keyword.in == found.text {
-				notFound = append(notFound[:i], notFound[i+1:]...)
+				if keyword.out == found.tagname {
+					notFound = append(notFound[:i], notFound[i+1:]...)
+				} else {
+					notFound[i].found = found.tagname
+				}
 				break
 			}
 		}
@@ -189,7 +210,7 @@ func TestFindCTags(t *testing.T) {
 	// fmt.Println(len(notFound))
 	for _, fail := range notFound {
 		if fail.out != "" {
-			t.Errorf("keyword testing %q, expected %q, actual %q", fail.in, fail.out, "")
+			t.Errorf("keyword testing %q, expected %q, actual %q", fail.in, fail.out, fail.found)
 
 		}
 
