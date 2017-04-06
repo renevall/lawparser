@@ -172,6 +172,7 @@ func TestFindCTags(t *testing.T) {
 		{"TITULO II", "Titulo", ""},
 		{"TÍTULO IV", "Titulo", ""},
 		{"TÍTULO ÚNICO", "Titulo", ""},
+		{"TÍTULO PRELIMINAR", "Titulo", ""},
 		{"Este es no es título", "", ""},
 		{"titulo II", "", ""},
 		{"Título II", "", ""},
