@@ -38,7 +38,7 @@ func TestPrepareTags(t *testing.T) {
 
 }
 
-func TestFindBasicDataName(t *testing.T) {
+func TestFindBasicData(t *testing.T) {
 	// fmt.Println("TestFindBasicDataName started")
 
 	input := make(chan string, 1)
@@ -136,6 +136,51 @@ func TestFindBasicDataName(t *testing.T) {
 		}
 	}
 
+	introData := []string{
+		"CODIGO DEL TRABAJO ( CON SUS REFORMAS, ADICIONES E",
+		"INTERPRETACIÓN AUTENTICA)",
+		"LEY No. 185, Aprobada el 5 de Septiembre de 1996",
+		"Publicada en La Gaceta No. 205 del 30 de Octubre de 1996",
+		"EL PRESIDENTE DE LA REPUBLICA DE NICARAGUA",
+		"Hace saber al Pueblo Nicaragüense que",
+		"LA ASAMBLEA NACIONAL DE LA REPUBLICA DE NICARAGUA",
+		"En uso de sus facultades",
+		"HA DICTADO",
+		"El siguiente",
+		"CODIGO DEL TRABAJO",
+		"LIBRO PRIMERO",
+		"DERECHO SUSTANTIVO",
+		"TITULO PRELIMINAR",
+		"PRINCIPIOS FUNDAMENTALES",
+		"I",
+		"El trabajo es un derecho, una responsabilidad social y goza de la especial",
+		"protección del Estado. El Estado procurará la ocupación plena y productiva de",
+		"todos los nicaragüenses.",
+		"TITULO",
+		"DISPOSICIONES GENERALES",
+		"CAPITULO I",
+		"OBJETO Y AMBITO DE APLICACION",
+		"Artículo 1.- El presente código regula las relaciones de trabajo estableciendo",
+	}
+
+	inIntro := make(chan string)
+	done2 := make(chan struct{})
+	law2 := NewLaw()
+	wg2 := new(sync.WaitGroup)
+	FindBasicData(law2, done2, inIntro, wg2)
+	var l int
+
+	for _, row := range introData {
+		l = l + len(row) + 1
+		inIntro <- row
+	}
+	l--
+	<-done2
+	if len(law2.Intro) != l {
+		t.Errorf("Testing law intro, expected %d length, actual %d", l, len(law2.Intro))
+
+	}
+
 }
 
 func TestFindCTags(t *testing.T) {
@@ -214,7 +259,5 @@ func TestFindCTags(t *testing.T) {
 			t.Errorf("keyword testing %q, expected %q, actual %q", fail.in, fail.out, fail.found)
 
 		}
-
 	}
-
 }

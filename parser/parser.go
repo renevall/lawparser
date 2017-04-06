@@ -112,6 +112,7 @@ func fanOut(done <-chan struct{}, ch <-chan string, wg *sync.WaitGroup) []chan s
 //FindBasicData process the data before first article
 func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) {
 	// t := time.Now()
+	var intro []string
 	wg.Add(1)
 	matches := make(map[int]*regexp.Regexp)
 	matches[0], _ = regexp.Compile("(\\d{1,2}\\s(de|del))\\s\\w+\\s+(del|de)\\s\\d+")
@@ -120,7 +121,8 @@ func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *
 	go func(*domain.Law) {
 		defer wg.Done()
 		for text := range in {
-			for _, tag := range intro {
+			intro = append(intro, text)
+			for _, tag := range introTags {
 				r, _ := regexp.Compile(tag.regex)
 				if r.MatchString(text) {
 					switch tag.name {
@@ -158,7 +160,7 @@ func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *
 						break
 
 					case "Arto":
-						// fmt.Println("End of Law Header Reached")
+						law.Intro = strings.Join(intro, " ")
 						done <- struct{}{}
 						// ts := time.Since(t)
 						// fmt.Println("FindBasicData", ts)
@@ -428,12 +430,12 @@ func broadcastCancel(done <-chan struct{}, ch chan<- string, data string) bool {
 	return false
 }
 
-var intro = Tags{
+var introTags = Tags{
 	Tag{"Name", "^LEY DE|^C(Ó?|O?)DIGO"},
 	Tag{"Number", "No\\.|N°."},
 	Tag{"Aproved", "Aprobad(a|o)"},
 	Tag{"Diary", "Publicad(a|o)"},
-	Tag{"Arto", "Art\\.\\s\\d+"},
+	Tag{"Arto", `^\f?(?:Art.\s\d+|Arto.\s\d+|Artículo\s\d+|Articulo\s\d+)`},
 }
 
 //TODO: Make tags consider words like "Único" and weird ass symbol: "\f"
