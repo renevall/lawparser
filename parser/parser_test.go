@@ -115,7 +115,28 @@ func TestFindBasicData(t *testing.T) {
 		}
 	}
 
-	diaryTests := []struct {
+	publishTests := []struct {
+		in  string
+		out string
+	}{
+		{"Publicada en La Gaceta No. 241 del 17 de Diciembre del 2012", "2012-12-17 00:00:00 +0000 UTC"},
+		{"Publicada en La Gaceta No. 205 del 30 de Octubre de 1996", "1996-10-30 00:00:00 +0000 UTC"},
+		{"Publicado en La Gaceta No. 121 del 27 de Junio del 2000.", "2000-06-27 00:00:00 +0000 UTC"},
+	}
+
+	for _, tt := range publishTests {
+		law := NewLaw()
+		FindBasicData(law, done, input, wg)
+		input <- tt.in
+		input <- "Art. 1"
+
+		<-done
+		if law.PublishDate.String() != tt.out {
+			t.Errorf("Name testing %q, expected %q, actual %q", tt.in, tt.out, law.PublishDate)
+		}
+	}
+
+	journalTests := []struct {
 		in  string
 		out string
 	}{
@@ -124,7 +145,7 @@ func TestFindBasicData(t *testing.T) {
 		{"Publicado en La Gaceta No. 121 del 27 de Junio del 2000.", "121"},
 	}
 
-	for _, tt := range diaryTests {
+	for _, tt := range journalTests {
 		law := NewLaw()
 		FindBasicData(law, done, input, wg)
 		input <- tt.in

@@ -150,13 +150,19 @@ func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *
 						fillBasicData(tag.name, date, law, matches)
 						break
 
-					case "Diary":
+					case "Journal":
 						d, err := regexp.Compile("[0-9]+")
 						if err != nil {
 							fmt.Println(err)
 						}
 						journal := d.FindString(text)
 						fillBasicData(tag.name, journal, law, matches)
+						d, err = regexp.Compile("[0-9]{1,2}\\s\\w+\\s\\w+\\s\\w+\\s[0-9]+")
+						if err != nil {
+							fmt.Println(err)
+						}
+						date := d.FindString(text)
+						fillBasicData("Published", date, law, matches)
 						break
 
 					case "Arto":
@@ -387,8 +393,19 @@ func fillBasicData(tag string, value string, law *domain.Law, matches map[int]*r
 		}
 		law.ApprovalDate = date
 		break
+	case "Published":
+		location, _ := time.LoadLocation("")
+		data := matches[0].FindString(value)
 
-	case "Diary":
+		data = matches[1].ReplaceAllString(data, "")
+		data = matches[2].ReplaceAllString(data, "")
+		date, err := monday.ParseInLocation("2 January 2006", data, location, monday.LocaleEsES)
+		if err != nil {
+			fmt.Println(err)
+		}
+		law.PublishDate = date
+
+	case "Journal":
 		law.Journal = value
 		break
 	}
@@ -434,7 +451,7 @@ var introTags = Tags{
 	Tag{"Name", "^LEY DE|^C(Ó?|O?)DIGO"},
 	Tag{"Number", "No\\.|N°."},
 	Tag{"Aproved", "Aprobad(a|o)"},
-	Tag{"Diary", "Publicad(a|o)"},
+	Tag{"Journal", "Publicad(a|o)"}, //this also fills publish date, to save a cycle.
 	Tag{"Arto", `^\f?(?:Art.\s\d+|Arto.\s\d+|Artículo\s\d+|Articulo\s\d+)`},
 }
 
