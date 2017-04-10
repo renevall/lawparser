@@ -213,6 +213,9 @@ func TestFindCTags(t *testing.T) {
 		{"LIBRO I", "Libro", ""},
 		{"LIBRO V", "Libro", ""},
 		{"LIBRO IV", "Libro", ""},
+		{"LIBRO PRIMERO", "Libro", ""},
+		{"LIBRO SEGUNDO", "Libro", ""},
+		{"LIBRO OCTAVO", "Libro", ""},
 		{"TÍTULO I", "Titulo", ""},
 		{"TITULO II", "Titulo", ""},
 		{"TÍTULO IV", "Titulo", ""},
