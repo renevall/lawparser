@@ -29,7 +29,7 @@ func (l *Law) GetLaws() ([]domain.Law, error) {
 	law := &domain.Law{}
 	var laws []domain.Law
 	for rows.Next() {
-		if err := rows.Scan(&law.ID, &law.Name, &law.ApprovalDate, &law.PublishDate,
+		if err := rows.Scan(&law.ID, &law.Name, &law.Number, &law.ApprovalDate, &law.PublishDate,
 			&law.Journal, &law.Intro, &law.Reviewed, &law.Revision); err != nil {
 			log.Println(err)
 			return nil, err
@@ -244,7 +244,7 @@ func (l *Law) InsertLawDB(newLaw *domain.Law) error {
 func (l *Law) CreateLaw() (int64, error) {
 	q := `INSERT INTO LAW
 		(name,number,approval_date,publish_date,journal,intro,reviewed, revision) 
-		VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING law_id`
+		VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING law_id`
 
 	//TODO Parse Date from txt file
 	law := l.Law
@@ -252,7 +252,7 @@ func (l *Law) CreateLaw() (int64, error) {
 
 	law.PublishDate = time.Now()
 	law.ApprovalDate = law.PublishDate
-	err := l.DB.QueryRow(q, law.Name, law.ApprovalDate, law.PublishDate,
+	err := l.DB.QueryRow(q, law.Name, law.Number, law.ApprovalDate, law.PublishDate,
 		law.Journal, law.Intro, law.Reviewed, law.Revision).Scan(&id)
 
 	if err != nil {
