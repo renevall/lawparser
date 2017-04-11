@@ -74,7 +74,7 @@ func (l *Law) GetLaw(c *gin.Context) {
 
 //IndexLaw sends a Request to the indexer service to Index a Law
 func (l *Law) IndexLaw(c *gin.Context) {
-	url := "http://localhost:8888/law"
+	url := "http://localhost:8585/law"
 	id := c.Param("id")
 	law, err := l.ReaderWriter.GetLaw(id)
 	if err != nil {
