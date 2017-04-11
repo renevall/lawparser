@@ -5,6 +5,7 @@ import "time"
 type Law struct {
 	ID           int       `json:"id" db:"law_id"`
 	Name         string    `json:"name"`
+	Number       int       `json:"number"`
 	ApprovalDate time.Time `json:"approvalDate" db:"approval_date"`
 	PublishDate  time.Time `json:"publishDate" db:"publish_date"`
 	Journal      string    `json:"journal"`

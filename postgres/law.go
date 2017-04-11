@@ -17,7 +17,7 @@ type Law struct {
 
 func (l *Law) GetLaws() ([]domain.Law, error) {
 	q := `SELECT 
-	law_id,name,approval_date,publish_date,journal,intro, reviewed, revision
+	law_id,name,number,approval_date,publish_date,journal,intro, reviewed, revision
 	FROM Law`
 	rows, err := l.DB.Query(q)
 	defer rows.Close()
@@ -243,7 +243,7 @@ func (l *Law) InsertLawDB(newLaw *domain.Law) error {
 //CreateLaw Adds a Law to the DB
 func (l *Law) CreateLaw() (int64, error) {
 	q := `INSERT INTO LAW
-		(name,approval_date,publish_date,journal,intro,reviewed, revision) 
+		(name,number,approval_date,publish_date,journal,intro,reviewed, revision) 
 		VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING law_id`
 
 	//TODO Parse Date from txt file
