@@ -49,6 +49,8 @@ func InitRouter(env *domain.Env) *gin.Engine {
 	router.POST("/api/laws", law.SaveLawDB)
 	router.PUT("/api/tmp/laws/:name", law.UpdateTmpLaw)
 
+	router.GET("/api/law/autocomplete", law.AutoComplete)
+
 	router.GET("/api/index/law/:id", law.IndexLaw)
 
 	return router

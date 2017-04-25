@@ -18,6 +18,7 @@ type LawReaderWriter interface {
 	GetLaws() ([]domain.Law, error)
 	GetLaw(id string) (domain.Law, error)
 	InsertLawDB(*domain.Law) error
+	AutoComplete(query string) ([]string, error)
 }
 
 //LawReader interface reads Law via file package
@@ -70,6 +71,23 @@ func (l *Law) GetLaw(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": law})
+}
+
+func (l *Law) AutoComplete(c *gin.Context) {
+	query := c.Query("query")
+	if query == "" {
+		c.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Not the expected params"})
+		return
+	}
+	results, err := l.ReaderWriter.AutoComplete(query)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error",
+			"message": "Could not reach DB"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "success", "data": results})
+
 }
 
 //IndexLaw sends a Request to the indexer service to Index a Law

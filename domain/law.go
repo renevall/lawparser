@@ -24,6 +24,7 @@ type LawStore interface {
 	InsertLawDB(law *Law) error
 	CreateLaw() (int64, error)
 	GetLaw(id string) (Law, error)
+	AutoComplete(query string) ([]string, error)
 }
 
 //AddTitle adds parsed title data to parsed law object

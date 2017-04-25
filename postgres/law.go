@@ -15,6 +15,26 @@ type Law struct {
 	Law *domain.Law
 }
 
+func (l *Law) AutoComplete(query string) ([]string, error) {
+	fmt.Println(query)
+	q := `SELECT name FROM law WHERE unaccent(name) ILIKE unaccent($1)`
+	data := []string{}
+	hits := []struct {
+		Name string
+	}{}
+	err := l.Select(&hits, q, "%"+query+"%")
+	if err != nil {
+		return nil, err
+	}
+	for _, hit := range hits {
+		data = append(data, hit.Name)
+	}
+
+	fmt.Println(data)
+	return data, nil
+
+}
+
 func (l *Law) GetLaws() ([]domain.Law, error) {
 	q := `SELECT 
 	law_id,name,number,approval_date,publish_date,journal,intro, reviewed, revision
