@@ -61,7 +61,7 @@ func (l *Law) GetLawsJSON(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "success", "data": laws})
 }
 
-//ReadLaw process a GET request of a single Law
+//GetLaw process a GET request of a single Law
 func (l *Law) GetLaw(c *gin.Context) {
 	id := c.Param("id")
 	law, err := l.ReaderWriter.GetLaw(id)
