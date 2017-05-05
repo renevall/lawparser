@@ -69,7 +69,7 @@ func (l *Law) GetLaw(id string) (domain.Law, error) {
 
 	//books
 	books := []domain.Book{}
-	err = l.Select(&books, "SELECT * FROM book WHERE law_id=$1", id)
+	err = l.Select(&books, "SELECT * FROM book WHERE law_id=$1 ORDER BY book_id", id)
 	if err != nil {
 		return law, err
 	}
@@ -79,7 +79,7 @@ func (l *Law) GetLaw(id string) (domain.Law, error) {
 
 	//titles
 	titles := []domain.Title{}
-	err = l.Select(&titles, "SELECT * FROM title WHERE law_id=$1", id)
+	err = l.Select(&titles, "SELECT * FROM title WHERE law_id=$1 ORDER BY title_id", id)
 	if err != nil {
 		return law, err
 	}
@@ -98,7 +98,7 @@ func (l *Law) GetLaw(id string) (domain.Law, error) {
 
 	//chapters
 	chapters := []domain.Chapter{}
-	err = l.Select(&chapters, "SELECT * FROM chapter WHERE law_id=$1", id)
+	err = l.Select(&chapters, "SELECT * FROM chapter WHERE law_id=$1 ORDER BY chapter_id", id)
 	if err != nil {
 		return law, err
 	}
@@ -131,7 +131,7 @@ func (l *Law) GetLaw(id string) (domain.Law, error) {
 
 	//articles
 	articles := []domain.Article{}
-	err = l.Select(&articles, "SELECT * FROM article WHERE law_id=$1", id)
+	err = l.Select(&articles, "SELECT * FROM article WHERE law_id=$1 ORDER BY article_id", id)
 	if err != nil {
 		return law, err
 	}
