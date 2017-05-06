@@ -6,6 +6,7 @@ import (
 	"bitbucket.org/reneval/lawparser/auth"
 	"bitbucket.org/reneval/lawparser/domain"
 	"bitbucket.org/reneval/lawparser/files"
+	"bitbucket.org/reneval/lawparser/parser"
 	db "bitbucket.org/reneval/lawparser/postgres"
 	"bitbucket.org/reneval/lawparser/router"
 	_ "github.com/lib/pq"
@@ -32,6 +33,10 @@ func main() {
 	newLaw := &domain.Law{}
 	law := &db.Law{dataB, newLaw}
 	env.Law = law
+
+	//Parser
+	parser := &parser.Tesauro{}
+	env.Parser = parser
 
 	fileReader := &files.FileReader{}
 	env.JSONFileReader = fileReader

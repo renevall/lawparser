@@ -9,6 +9,7 @@ type Env struct {
 	Authorizer     JWTAuthorizer
 	Law            LawStore
 	JSONFileReader JSONFileReader
+	Parser         Parser
 }
 
 type ClaimerVerifier interface {
@@ -21,4 +22,8 @@ type JWTAuthorizer interface {
 
 type JSONFileReader interface {
 	LoadJSONLaw(name string) (*Law, error)
+}
+
+type Parser interface {
+	Parse(uri string) error
 }

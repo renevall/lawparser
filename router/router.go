@@ -48,10 +48,12 @@ func InitRouter(env *domain.Env) *gin.Engine {
 	router.GET("/api/tmp/laws/:name", law.ReadTMPLaw)
 	router.POST("/api/laws", law.SaveLawDB)
 	router.PUT("/api/tmp/laws/:name", law.UpdateTmpLaw)
-
 	router.GET("/api/law/autocomplete", law.AutoComplete)
-
 	router.GET("/api/index/law/:id", law.IndexLaw)
+
+	tesauro := &Tesauro{Parser: env.Parser}
+
+	router.GET("/api/tesauro/parse", tesauro.ParseTesauro)
 
 	return router
 }
