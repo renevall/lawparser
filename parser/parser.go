@@ -109,6 +109,21 @@ func fanOut(done <-chan struct{}, ch <-chan string, wg *sync.WaitGroup) []chan s
 	return cs
 }
 
+func broadcast(ch chan<- string, data string) {
+	ch <- data
+}
+
+func broadcastCancel(done <-chan struct{}, ch chan<- string, data string) bool {
+	select {
+	case ch <- data:
+		return false
+	case <-done:
+		return true
+	}
+
+	return false
+}
+
 //FindBasicData process the data before first article
 func FindBasicData(law *domain.Law, done chan<- struct{}, in <-chan string, wg *sync.WaitGroup) {
 	// t := time.Now()
@@ -430,21 +445,6 @@ func feedArticle(lines []string, last int, t foundTag, tags []int, r int) domain
 
 	return mArticle
 
-}
-
-func broadcast(ch chan<- string, data string) {
-	ch <- data
-}
-
-func broadcastCancel(done <-chan struct{}, ch chan<- string, data string) bool {
-	select {
-	case ch <- data:
-		return false
-	case <-done:
-		return true
-	}
-
-	return false
 }
 
 var introTags = Tags{
