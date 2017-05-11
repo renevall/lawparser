@@ -25,5 +25,5 @@ type JSONFileReader interface {
 }
 
 type Parser interface {
-	Parse(uri string) error
+	Parse(uri string) (*Tesauro, error)
 }
