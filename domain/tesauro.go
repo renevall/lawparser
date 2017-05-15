@@ -11,6 +11,7 @@ type TTitle struct {
 	Parent    int
 	Titles    []TTitle
 	Paragraph []TParagraph
+	Level     int
 }
 
 type TParagraph struct {
