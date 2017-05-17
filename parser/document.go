@@ -12,7 +12,7 @@ import (
 	"bitbucket.org/reneval/lawparser/domain"
 )
 
-type Tesauro struct {
+type Document struct {
 }
 
 type Index struct {
@@ -34,8 +34,8 @@ func (slice Indexes) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
 }
 
-//Parse parses a Tesauro Book
-func (t *Tesauro) Parse(uri string) (*domain.Tesauro, error) {
+//Parse parses a Document Book
+func (t *Document) Parse(uri string) (*domain.Document, error) {
 	wg := new(sync.WaitGroup)
 
 	lines := Stream("./testlaws/index.txt")
@@ -44,10 +44,10 @@ func (t *Tesauro) Parse(uri string) (*domain.Tesauro, error) {
 		return nil, err
 	}
 	stack := <-titles
-	tesauro := formTesauro(stack)
+	document := formDocument(stack)
 
 	wg.Wait()
-	return tesauro, nil
+	return document, nil
 }
 
 func findTitles(wg *sync.WaitGroup, lines <-chan string) (<-chan *Stack, error) {
@@ -88,10 +88,10 @@ func findTitles(wg *sync.WaitGroup, lines <-chan string) (<-chan *Stack, error) 
 				row := strings.TrimSpace(text)
 				i := sort.Search(len(titles), func(i int) bool { return titles[i].Text >= row })
 				if i < len(titles) && titles[i].Text == row {
-					listmap.Push(domain.TTitle{ID: 0, Name: text, Level: titles[i].Level})
+					listmap.Push(domain.DocTitle{ID: 0, Name: text, Level: titles[i].Level})
 					//end of paragraph if a new title is found.
 					if len(para) > 0 {
-						paragraph := domain.TParagraph{
+						paragraph := domain.DocParagraph{
 							ID:   0,
 							Text: strings.Join(para, " "),
 						}
@@ -100,7 +100,7 @@ func findTitles(wg *sync.WaitGroup, lines <-chan string) (<-chan *Stack, error) 
 					}
 				} else {
 					if text == "" {
-						paragraph := domain.TParagraph{
+						paragraph := domain.DocParagraph{
 							ID:   0,
 							Text: strings.Join(para, " "),
 						}
@@ -143,38 +143,19 @@ func Stream(uri string) <-chan string {
 	return out
 }
 
-func formTesauro(stack *Stack) *domain.Tesauro {
-	tesauro := &domain.Tesauro{}
-	var currentChild *domain.TTitle
+func formDocument(stack *Stack) *domain.Document {
+	tesauro := &domain.Document{}
+	var currentChild *domain.DocTitle
 	lasWasTitle := false
 	// isMainT, err := regexp.Compile("^[IVXL]+\\.[a-zA-Z\u00C0-\u017F\\ ]+$")
 	// if err != nil {
 	// 	return nil
 	// }
-	var currents []*domain.TTitle
+	var currents []*domain.DocTitle
 
 	for _, element := range stack.data {
 		switch element := element.(type) {
-		case domain.TTitle:
-			// main := isMainT.MatchString(element.Name)
-			// fmt.Println("Title found")
-			// if currentChild == nil { //first time
-			// 	currentChild = tesauro.AddTitle(element)
-			// 	if main {
-			// 		currentMain = currentChild
-			// 	}
-			// } else if lasWasTitle { //subtitle
-			// 	currentChild = currentChild.AddChild(element)
-
-			// } else { // last one was not first time, and current isn't nil, (last was )
-			// 	if main {
-			// 		currentChild = tesauro.AddTitle(element)
-			// 		currentMain = currentChild
-			// 	} else {
-			// 		currentChild = currentMain.AddChild(element)
-			// 	}
-			// }
-
+		case domain.DocTitle:
 			next := element.Level
 			fmt.Println("Current level is: ", next, " and text is: ", element.Name)
 			if len(currents) == 0 {
@@ -204,7 +185,7 @@ func formTesauro(stack *Stack) *domain.Tesauro {
 			}
 
 			lasWasTitle = true
-		case domain.TParagraph:
+		case domain.DocParagraph:
 			fmt.Println("Paragraph found")
 			if currentChild != nil {
 				currentChild.AddParagraph(element)

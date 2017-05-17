@@ -51,9 +51,9 @@ func InitRouter(env *domain.Env) *gin.Engine {
 	router.GET("/api/law/autocomplete", law.AutoComplete)
 	router.GET("/api/index/law/:id", law.IndexLaw)
 
-	tesauro := &Tesauro{Parser: env.Parser}
+	document := &Document{Parser: env.Parser}
 
-	router.GET("/api/tesauro/parse", tesauro.ParseTesauro)
+	router.GET("/api/tesauro/parse", document.ParseDocument)
 
 	return router
 }

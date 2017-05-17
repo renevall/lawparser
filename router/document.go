@@ -10,21 +10,21 @@ import (
 )
 
 type Parser interface {
-	Parse(uri string) (*domain.Tesauro, error)
+	Parse(uri string) (*domain.Document, error)
 }
 
-type Tesauro struct {
+type Document struct {
 	Parser
 }
 
 //GetLaw process a GET request of a single Law
-func (t *Tesauro) ParseTesauro(c *gin.Context) {
+func (t *Document) ParseDocument(c *gin.Context) {
 
-	tesauro, err := t.Parser.Parse("Hola")
+	document, err := t.Parser.Parse("Hola")
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Record not Found"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": tesauro})
+	c.JSON(http.StatusOK, gin.H{"data": document})
 }
