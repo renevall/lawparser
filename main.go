@@ -35,7 +35,7 @@ func main() {
 	env.Law = law
 
 	//Parser
-	parser := &parser.Document{}
+	parser := &parser.Publication{}
 	env.Parser = parser
 
 	fileReader := &files.FileReader{}

@@ -25,5 +25,5 @@ type JSONFileReader interface {
 }
 
 type Parser interface {
-	Parse(uri string) (*Document, error)
+	Parse(uri string) (*Publication, error)
 }

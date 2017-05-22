@@ -10,15 +10,15 @@ import (
 )
 
 type Parser interface {
-	Parse(uri string) (*domain.Document, error)
+	Parse(uri string) (*domain.Publication, error)
 }
 
-type Document struct {
+type Publication struct {
 	Parser
 }
 
 //GetLaw process a GET request of a single Law
-func (t *Document) ParseDocument(c *gin.Context) {
+func (t *Publication) ParsePublication(c *gin.Context) {
 
 	document, err := t.Parser.Parse("Hola")
 	if err != nil {

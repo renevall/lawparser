@@ -12,7 +12,7 @@ import (
 	"bitbucket.org/reneval/lawparser/domain"
 )
 
-type Document struct {
+type Publication struct {
 }
 
 type Index struct {
@@ -34,8 +34,8 @@ func (slice Indexes) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
 }
 
-//Parse parses a Document Book
-func (t *Document) Parse(uri string) (*domain.Document, error) {
+//Parse parses a Publication Book
+func (t *Publication) Parse(uri string) (*domain.Publication, error) {
 	wg := new(sync.WaitGroup)
 
 	lines := Stream("./testlaws/index.txt")
@@ -44,7 +44,7 @@ func (t *Document) Parse(uri string) (*domain.Document, error) {
 		return nil, err
 	}
 	stack := <-titles
-	document := formDocument(stack)
+	document := formPublication(stack)
 
 	wg.Wait()
 	return document, nil
@@ -88,10 +88,10 @@ func findTitles(wg *sync.WaitGroup, lines <-chan string) (<-chan *Stack, error) 
 				row := strings.TrimSpace(text)
 				i := sort.Search(len(titles), func(i int) bool { return titles[i].Text >= row })
 				if i < len(titles) && titles[i].Text == row {
-					listmap.Push(domain.DocTitle{ID: 0, Name: text, Level: titles[i].Level})
+					listmap.Push(domain.PubTitle{ID: 0, Name: text, Level: titles[i].Level})
 					//end of paragraph if a new title is found.
 					if len(para) > 0 {
-						paragraph := domain.DocParagraph{
+						paragraph := domain.PubParagraph{
 							ID:   0,
 							Text: strings.Join(para, " "),
 						}
@@ -100,7 +100,7 @@ func findTitles(wg *sync.WaitGroup, lines <-chan string) (<-chan *Stack, error) 
 					}
 				} else {
 					if text == "" {
-						paragraph := domain.DocParagraph{
+						paragraph := domain.PubParagraph{
 							ID:   0,
 							Text: strings.Join(para, " "),
 						}
@@ -143,19 +143,19 @@ func Stream(uri string) <-chan string {
 	return out
 }
 
-func formDocument(stack *Stack) *domain.Document {
-	tesauro := &domain.Document{}
-	var currentChild *domain.DocTitle
+func formPublication(stack *Stack) *domain.Publication {
+	tesauro := &domain.Publication{}
+	var currentChild *domain.PubTitle
 	lasWasTitle := false
 	// isMainT, err := regexp.Compile("^[IVXL]+\\.[a-zA-Z\u00C0-\u017F\\ ]+$")
 	// if err != nil {
 	// 	return nil
 	// }
-	var currents []*domain.DocTitle
+	var currents []*domain.PubTitle
 
 	for _, element := range stack.data {
 		switch element := element.(type) {
-		case domain.DocTitle:
+		case domain.PubTitle:
 			next := element.Level
 			fmt.Println("Current level is: ", next, " and text is: ", element.Name)
 			if len(currents) == 0 {
@@ -185,7 +185,7 @@ func formDocument(stack *Stack) *domain.Document {
 			}
 
 			lasWasTitle = true
-		case domain.DocParagraph:
+		case domain.PubParagraph:
 			fmt.Println("Paragraph found")
 			if currentChild != nil {
 				currentChild.AddParagraph(element)
