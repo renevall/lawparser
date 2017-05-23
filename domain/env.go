@@ -10,6 +10,7 @@ type Env struct {
 	Law            LawStore
 	JSONFileReader JSONFileReader
 	Parser         Parser
+	FileUploader
 }
 
 type ClaimerVerifier interface {
@@ -22,8 +23,13 @@ type JWTAuthorizer interface {
 
 type JSONFileReader interface {
 	LoadJSONLaw(name string) (*Law, error)
+	LoadJSONPub(name string) (*Publication, error)
+}
+
+type FileUploader interface {
+	UploadFromHTTP(*http.Request, string) (string, error)
 }
 
 type Parser interface {
-	Parse(uri string) (*Publication, error)
+	ParsePub(uri string) (*Publication, error)
 }

@@ -25,7 +25,7 @@ type Profile struct {
 
 //New Returns a User Profile
 //TODO: Check if this is needed
-func New(p ProfileRetriever) *Profile {
+func NewProfile(p ProfileRetriever) *Profile {
 	return &Profile{
 		service: p,
 	}

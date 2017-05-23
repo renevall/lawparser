@@ -5,6 +5,7 @@ frontend/node_modules
 frontend/jspm_packages
 frontend/bower_components
 tmp
+tmp_publication
 /testlaws
 
 *.sqlite

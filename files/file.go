@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 
 	"bitbucket.org/reneval/lawparser/domain"
 	"bitbucket.org/reneval/lawparser/models"
@@ -18,6 +20,36 @@ import (
 )
 
 type FileReader struct {
+}
+
+func (f *FileReader) UploadFromHTTP(r *http.Request, dir string) (string, error) {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		os.Mkdir(dir, os.ModePerm)
+	}
+
+	file, header, err := ReadFromHTTP(r)
+	if err != nil {
+		fmt.Println("Error on ReadFromHTTP", err)
+		return "", err
+	}
+	defer file.Close()
+
+	fname := strings.TrimSuffix(header.Filename, filepath.Ext(header.Filename))
+
+	path, err := TempFile(dir, fname)
+	if err != nil {
+		fmt.Println("Error on TempFile", err)
+		return "", err
+	}
+	defer os.Remove(path.Name())
+
+	name, err := SaveUploadedFile(file, "./"+path.Name(), dir)
+	if err != nil {
+		fmt.Println("Error on SaveUploadedFile", err)
+		return "", err
+	}
+
+	return name, nil
 }
 
 //ReadFromHTTP reads the input files from an http request object
@@ -36,20 +68,24 @@ func ReadFromHTTP(r *http.Request) (multipart.File, *multipart.FileHeader, error
 }
 
 //SaveUploadedFile picks a file a moves it to the requested location
-func SaveUploadedFile(file multipart.File, name string, path string) error {
-	f, err := os.OpenFile(path+name, os.O_WRONLY|os.O_CREATE, 0666)
+func SaveUploadedFile(file multipart.File, name string, dir string) (string, error) {
+	fmt.Println("name is:", name)
+	fmt.Println("dir is:", dir)
+	path := name + ".txt"
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		return errors.Wrap(err, "Could not open tmp folder")
+		fmt.Println(err)
+		return "", errors.Wrap(err, "Could not open tmp folder")
 	}
 	defer f.Close()
 
 	_, err = io.Copy(f, file)
 	if err != nil {
 		fmt.Println("copy file")
-		return errors.Wrap(err, "Could not copy file")
+		return "", errors.Wrap(err, "Could not copy file")
 	}
 
-	return nil
+	return path, nil
 
 }
 
@@ -113,4 +149,28 @@ func (f *FileReader) LoadJSONLaw(name string) (*domain.Law, error) {
 		return nil, errors.Wrap(err, "parsing to law failed")
 	}
 	return law, nil
+}
+
+//LoadJSONPub parses json file into a law object given a name.
+func (f *FileReader) LoadJSONPub(name string) (*domain.Publication, error) {
+	if name == "" {
+		return nil, errors.Wrap(errors.New("Expected Param"), "Param name not set")
+	}
+
+	//TODO: use config file
+	path := path.Join("./tmp_pub", name)
+
+	file, err := OpenFile(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "file open failed")
+	}
+	pub := new(domain.Publication)
+
+	//TODO: Review if it is posible to not unmarshall and send json from file
+	//10ms diference so far
+	err = json.Unmarshal(file, pub)
+	if err != nil {
+		return nil, errors.Wrap(err, "parsing to law failed")
+	}
+	return pub, nil
 }

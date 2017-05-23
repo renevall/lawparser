@@ -40,6 +40,7 @@ func main() {
 
 	fileReader := &files.FileReader{}
 	env.JSONFileReader = fileReader
+	env.FileUploader = fileReader
 
 	router := router.InitRouter(env)
 	router.Run(":8080")

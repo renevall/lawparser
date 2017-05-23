@@ -34,11 +34,11 @@ func (slice Indexes) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
 }
 
-//Parse parses a Publication Book
-func (t *Publication) Parse(uri string) (*domain.Publication, error) {
+//ParsePub parses a Publication Book
+func (t *Publication) ParsePub(uri string) (*domain.Publication, error) {
 	wg := new(sync.WaitGroup)
 
-	lines := Stream("./testlaws/index.txt")
+	lines := Stream(uri)
 	titles, err := findTitles(wg, lines)
 	if err != nil {
 		return nil, err

@@ -34,7 +34,7 @@ func (f *File) LawParseHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 	}
 
-	err = files.SaveUploadedFile(file, header.Filename, "./tmp/")
+	_, err = files.SaveUploadedFile(file, header.Filename, "./tmp/")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 	}
