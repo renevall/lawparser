@@ -11,6 +11,8 @@ type Env struct {
 	JSONFileReader JSONFileReader
 	Parser         Parser
 	FileUploader
+	DirReader
+	FileRemover
 }
 
 type ClaimerVerifier interface {
@@ -32,4 +34,12 @@ type FileUploader interface {
 
 type Parser interface {
 	ParsePub(uri string) (*Publication, error)
+}
+
+type DirReader interface {
+	ListDirFiles(string) ([]File, error)
+}
+
+type FileRemover interface {
+	DeleteFile(string) error
 }

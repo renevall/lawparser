@@ -14,7 +14,6 @@ import (
 	"strings"
 
 	"bitbucket.org/reneval/lawparser/domain"
-	"bitbucket.org/reneval/lawparser/models"
 
 	"github.com/pkg/errors"
 )
@@ -99,7 +98,7 @@ func OpenFile(uri string) ([]byte, error) {
 }
 
 //DeleteFile removes a file from filesystem
-func DeleteFile(uri string) error {
+func (f *FileReader) DeleteFile(uri string) error {
 	err := os.Remove(uri)
 	if err != nil {
 		return err
@@ -108,16 +107,16 @@ func DeleteFile(uri string) error {
 }
 
 //ListDirFiles list all files but dirs
-func ListDirFiles(uri string) ([]models.TmpLaw, error) {
+func (f *FileReader) ListDirFiles(uri string) ([]domain.File, error) {
 	files, err := ioutil.ReadDir(uri)
-	var filelist []models.TmpLaw
+	var filelist []domain.File
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not open Folder")
 	}
 
 	for _, f := range files {
 		if !f.IsDir() {
-			file := models.TmpLaw{Name: f.Name(), Path: uri}
+			file := domain.File{Name: f.Name(), Path: uri}
 			filelist = append(filelist, file)
 		}
 	}

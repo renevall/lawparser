@@ -41,7 +41,10 @@ func InitRouter(env *domain.Env) *gin.Engine {
 	file := &File{}
 	router.POST("/api/tmp/laws", file.LawParseHandler)
 
-	law := &Law{ReaderWriter: env.Law, JSONReader: env.JSONFileReader}
+	law := &Law{ReaderWriter: env.Law,
+		JSONReader:  env.JSONFileReader,
+		DirReader:   env.DirReader,
+		FileRemover: env.FileRemover}
 	router.GET("/api/tmp/laws", law.GetLawsTMP)
 	router.GET("/api/laws", law.GetLawsJSON)
 	router.GET("/api/laws/:id", law.GetLaw)
@@ -51,11 +54,13 @@ func InitRouter(env *domain.Env) *gin.Engine {
 	router.GET("/api/law/autocomplete", law.AutoComplete)
 	router.GET("/api/index/law/:id", law.IndexLaw)
 
-	publication := NewPublication(env.Parser, env.JSONFileReader, env.FileUploader)
+	publication := NewPublication(env.Parser, env.JSONFileReader,
+		env.FileUploader, env.DirReader)
 	// &Publication{Parser: env.Parser}
 
 	router.GET("/api/tesauro/parse", publication.ParsePublication)
 	router.POST("/api/publication/upload", publication.UploadPublication)
+	router.GET("/api/tmp/publications", publication.GetTMPPub)
 
 	return router
 }

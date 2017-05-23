@@ -23,18 +23,28 @@ type filereader interface {
 type fileuploader interface {
 	UploadFromHTTP(*http.Request, string) (string, error)
 }
+type dirReader interface {
+	ListDirFiles(string) ([]domain.File, error)
+}
 
 type Publication struct {
 	fileparser
 	filereader
 	fileuploader
+	dirReader
 }
 
-func NewPublication(parser fileparser, reader filereader, uploader fileuploader) *Publication {
+func NewPublication(
+	parser fileparser,
+	reader filereader,
+	uploader fileuploader,
+	dirReader dirReader,
+) *Publication {
 	return &Publication{
 		fileparser:   parser,
 		filereader:   reader,
 		fileuploader: uploader,
+		dirReader:    dirReader,
 	}
 }
 
@@ -92,4 +102,13 @@ func (p *Publication) UploadPublication(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "success", "data": pub})
 	// c.JSON(http.StatusOK, gin.H{"status": "success", "data": "Hola"})
 
+}
+
+func (p *Publication) GetTMPPub(c *gin.Context) {
+	files, err := p.dirReader.ListDirFiles("./tmp_publication")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "data": files})
 }

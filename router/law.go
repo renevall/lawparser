@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"bitbucket.org/reneval/lawparser/domain"
-	"bitbucket.org/reneval/lawparser/files"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,20 +25,30 @@ type LawJSONReader interface {
 	LoadJSONLaw(name string) (*domain.Law, error)
 }
 
+type DirReader interface {
+	ListDirFiles(string) ([]domain.File, error)
+}
+
+type FileRemover interface {
+	DeleteFile(string) error
+}
+
 type Law struct {
 	ReaderWriter LawReaderWriter
 	JSONReader   LawJSONReader
+	DirReader
+	FileRemover
 }
 
 //GetLawsTMP responds with all tmp laws (flat file)
 func (l *Law) GetLawsTMP(c *gin.Context) {
 	// TODO: Use Global Config
-	laws, err := files.ListDirFiles("./parsed_laws")
+	files, err := l.DirReader.ListDirFiles("./parsed_laws")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "data": laws})
+	c.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "data": files})
 }
 
 //GetLawsJSON responds with all laws from db
@@ -138,7 +147,7 @@ func (l *Law) SaveLawDB(c *gin.Context) {
 		return
 	}
 
-	files.DeleteFile("./parsed_laws/" + law.Init)
+	l.FileRemover.DeleteFile("./parsed_laws/" + law.Init)
 
 	c.JSON(http.StatusOK, gin.H{"status": "success", "data": law})
 }
