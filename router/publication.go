@@ -60,16 +60,16 @@ func (p *Publication) ParsePublication(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": publication})
 }
 
-//ListPublications returns a list of all Publications
-func (p *Publication) ListPublications(c *gin.Context) {
-	publication, err := p.filereader.LoadJSONPub(c.Param("id"))
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Record not Found"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"data": publication})
-}
+// //ListPublications returns a list of all Publications
+// func (p *Publication) ListPublications(c *gin.Context) {
+// 	publication, err := p.filereader.LoadJSONPub(c.Param("id"))
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Record not Found"})
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, gin.H{"data": publication})
+// }
 
 //UploadPublication uploads and parses a file coming from an http request
 func (p *Publication) UploadPublication(c *gin.Context) {
@@ -100,10 +100,9 @@ func (p *Publication) UploadPublication(c *gin.Context) {
 	os.Remove(path)
 
 	c.JSON(http.StatusOK, gin.H{"status": "success", "data": pub})
-	// c.JSON(http.StatusOK, gin.H{"status": "success", "data": "Hola"})
-
 }
 
+//GetTMPPub returns an array of the files in the temp publication folder
 func (p *Publication) GetTMPPub(c *gin.Context) {
 	files, err := p.dirReader.ListDirFiles("./tmp_publication")
 	if err != nil {
@@ -111,4 +110,18 @@ func (p *Publication) GetTMPPub(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "data": files})
+}
+
+// ReadTMPLaw Reads a TMP Law (Flat file)  and renders it as JSON to be consumed
+func (p *Publication) GetPubJSON(c *gin.Context) {
+	name := c.Param("name")
+	pub, err := p.filereader.LoadJSONPub(name)
+
+	if err != nil {
+		c.JSON(http.StatusOK, err)
+		return
+	}
+
+	c.JSON(200, gin.H{"code": 200, "data": pub})
+
 }

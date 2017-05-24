@@ -23,6 +23,7 @@ type LawReaderWriter interface {
 //LawReader interface reads Law via file package
 type LawJSONReader interface {
 	LoadJSONLaw(name string) (*domain.Law, error)
+	LoadJSONPub(name string) (*domain.Publication, error)
 }
 
 type DirReader interface {

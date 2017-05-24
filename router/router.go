@@ -61,6 +61,7 @@ func InitRouter(env *domain.Env) *gin.Engine {
 	router.GET("/api/tesauro/parse", publication.ParsePublication)
 	router.POST("/api/publication/upload", publication.UploadPublication)
 	router.GET("/api/tmp/publications", publication.GetTMPPub)
+	router.GET("/api/tmp/publications/:name", publication.GetPubJSON)
 
 	return router
 }

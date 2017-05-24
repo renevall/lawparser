@@ -157,7 +157,7 @@ func (f *FileReader) LoadJSONPub(name string) (*domain.Publication, error) {
 	}
 
 	//TODO: use config file
-	path := path.Join("./tmp_pub", name)
+	path := path.Join("./tmp_publication", name)
 
 	file, err := OpenFile(path)
 	if err != nil {
