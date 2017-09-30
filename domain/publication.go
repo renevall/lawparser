@@ -1,23 +1,23 @@
 package domain
 
 type Publication struct {
-	ID     int
-	Titles []PubTitle
+	ID     int        `json:"id"`
+	Titles []PubTitle `json:"titles"`
 }
 
 type PubTitle struct {
-	ID        int
-	Name      string
-	Parent    int
-	Titles    []PubTitle
-	Paragraph []PubParagraph
-	Level     int
+	ID        int            `json:"id"`
+	Name      string         `json:"name"`
+	Parent    int            `json:"parent"`
+	Titles    []PubTitle     `json:"titles"`
+	Paragraph []PubParagraph `json:"paragraph"`
+	Level     int            `json:"level"`
 }
 
 type PubParagraph struct {
-	ID     int
-	Parent int
-	Text   string
+	ID      int    `json:"id"`
+	TitleID int    `json:"title_id"`
+	Text    string `json:"text"`
 }
 
 func (p *Publication) AddTitle(title PubTitle) *PubTitle {
