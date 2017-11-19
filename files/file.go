@@ -70,7 +70,7 @@ func ReadFromHTTP(r *http.Request) (multipart.File, *multipart.FileHeader, error
 func SaveUploadedFile(file multipart.File, name string, dir string) (string, error) {
 	fmt.Println("name is:", name)
 	fmt.Println("dir is:", dir)
-	path := name + ".txt"
+	path := dir + name
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		fmt.Println(err)
